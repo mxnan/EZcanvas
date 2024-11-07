@@ -18,29 +18,41 @@ const LoginButton = () => {
       setUser(user);
     };
     fetchUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  if (user) {
-    return (
-      <Button
-        onClick={() => {
-          signout();
-          setUser(null);
-        }}
-      >
-        Log out
-      </Button>
-    );
-  }
+  // if (user) {
+  //   return (
+  //     <Button
+  //       onClick={() => {
+  //         signout();
+  //         setUser(null);
+  //       }}
+  //     >
+  //       Log out
+  //     </Button>
+  //   );
+  // }
   return (
-    <Button
-      variant="outline"
-      onClick={() => {
-        router.push("/login");
-      }}
-    >
-      Login
-    </Button>
+    <>
+      {user ? (
+        <Button
+          onClick={() => {
+            signout();
+            setUser(null);
+          }}
+        >
+          Log out
+        </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            router.push("/create");
+          }}
+        >
+          Log in
+        </Button>
+      )}
+    </>
   );
 };
 

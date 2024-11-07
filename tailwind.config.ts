@@ -9,20 +9,6 @@ const config: Config = {
     "./app/**/*.{ts,tsx}",
   ],
   theme: {
-    container: {
-      center: true,
-      padding: "1.2rem",
-      // screens: {
-      //   "max-2xl": "1900px",
-      //   "4xl": "1600px",
-      //   "2xl": "1400px",
-      //   xl: "1200px",
-      //   lg: "1024px",
-      //   md: "768px",
-      //   sm: "600px",
-      //   xs: "480px",
-      // },
-    },
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)"],

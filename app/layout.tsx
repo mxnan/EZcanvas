@@ -3,6 +3,7 @@ import "./globals.css";
 import { Genos, Archivo } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Image Text Gif",
@@ -35,7 +36,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "antialiased container font-sans",
+          "antialiased font-sans",
           fontmono.variable,
           fontsans.variable
         )}
@@ -47,6 +48,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster position="top-right" />
         </ThemeProvider>
       </body>
     </html>

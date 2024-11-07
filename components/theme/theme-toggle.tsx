@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
@@ -13,6 +14,7 @@ const ThemeToggle = () => {
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
+    toast.success(`Switched to : ${theme === "dark" ? "light" : "dark"}`);
   };
 
   if (!mounted) return null; // Prevent rendering on the server
