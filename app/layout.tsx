@@ -4,6 +4,8 @@ import { Genos, Archivo } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import Navbar from "@/components/navbar";
+
 
 export const metadata: Metadata = {
   title: "Image Text Gif",
@@ -36,17 +38,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "antialiased font-sans",
+          "relative antialiased font-sans",
           fontmono.variable,
           fontsans.variable
         )}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
+          <Navbar />
           {children}
           <Toaster position="top-right" />
         </ThemeProvider>
