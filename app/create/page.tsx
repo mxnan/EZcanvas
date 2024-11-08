@@ -4,7 +4,6 @@ import UserDetails from "@/components/user-data";
 import { createClient } from "@/utils/supabase/client";
 
 import React, { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 export default function CreatePage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +27,7 @@ export default function CreatePage() {
   }
 
   if (!user) {
-    toast.message("authenticate yourself first ")
+
     return <Authenticate />;
   }
 

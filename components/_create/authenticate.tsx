@@ -10,10 +10,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Image from "next/image";
 
 export default function Authenticate() {
   return (
-    <div className="w-full min-h-screen bg-red-400">
+    <div className="relative w-full min-h-screen ">
+        <Image
+          src="/assets/luffy.gif"
+          alt="logout"
+          fill
+          className="object-cover z-0 h-1/2 w-1/2"
+        />
       <AlertDialog defaultOpen>
         <AlertDialogTrigger>
           <> </>
