@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Genos, Archivo } from "next/font/google";
+import { Orbitron, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/nav/navbar";
 
 
 export const metadata: Metadata = {
@@ -15,16 +15,16 @@ export const metadata: Metadata = {
   },
 };
 
-const fontmono = Genos({
+const fontmono = Orbitron({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-mono",
   display: "swap",
 });
 
-const fontsans = Archivo({
+const fontsans = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });

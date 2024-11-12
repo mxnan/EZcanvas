@@ -1,6 +1,5 @@
 "use server";
 
-
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { toast } from "sonner";
@@ -13,7 +12,6 @@ export async function signout() {
     toast.error(error.message);
     redirect("/error");
   }
-
   redirect("/logout");
 }
 
@@ -26,7 +24,7 @@ export async function signInWithGoogle() {
         access_type: "offline",
         prompt: "consent",
       },
-      // redirectTo: "http://localhost:3000/create",
+
       redirectTo: `${process.env.NEXT_PUBLIC_URL + "/create"}`,
     },
   });

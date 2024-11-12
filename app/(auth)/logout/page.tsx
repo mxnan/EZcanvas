@@ -17,6 +17,8 @@ const LogoutPage = () => {
           src="/assets/car.gif"
           alt="logout"
           fill
+          priority
+          unoptimized
           className="object-cover z-0 h-1/2 w-1/2"
         />
         <div className="relative flex container mx-auto mt-40 2xl:mt-72 px-2   ">

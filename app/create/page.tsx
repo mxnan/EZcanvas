@@ -1,6 +1,5 @@
 "use client";
 import Authenticate from "@/components/_create/authenticate";
-import UserDetails from "@/components/user-details";
 import { createClient } from "@/utils/supabase/client";
 
 import React, { useEffect, useState } from "react";
@@ -32,7 +31,7 @@ export default function CreatePage() {
 
   return (
     <section className="flex-center min-h-screen ">
-      <UserDetails />
+    helldas
     </section>
   );
 }
