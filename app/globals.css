@@ -69,5 +69,35 @@
   .flex-center {
     @apply flex items-center justify-center;
   }
- 
 }
+
+/*************************SCROLLBAR CLASSES************************************/
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+/* scrollbar track as class for codeblock */
+.scrollbartrack::-webkit-scrollbar-track {
+  @apply bg-primary-foreground rounded-xl;
+}
+/* */
+*::-webkit-scrollbar {
+  @apply w-[0.2px];
+}
+
+*::-webkit-scrollbar-track {
+  @apply bg-stone-800;
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply bg-stone-300 dark:bg-stone-700 rounded-md border-2 border-gray-500;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white dark:bg-gray-500;
+}
+/*************************************************************/

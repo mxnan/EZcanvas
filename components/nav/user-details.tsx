@@ -32,6 +32,7 @@ const UserDetails = () => {
               src={user.user_metadata.avatar_url}
               alt="avatar"
               fill
+              priority
               sizes="(100vw, 100vh)"
               className="object-cover"
             />
