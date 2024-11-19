@@ -58,9 +58,7 @@ const UploadImage: React.FC<UploadImageProps> = ({ onImageUpload }) => {
 
   return (
     <div>
-      {/* <Button onClick={() => fileInputRef.current?.click()}>
-        Upload Image
-      </Button> */}
+   
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button>Upload here ?</Button>
@@ -92,11 +90,11 @@ const UploadImage: React.FC<UploadImageProps> = ({ onImageUpload }) => {
           <AlertDialogTrigger>
             <> </>
           </AlertDialogTrigger>
-          <AlertDialogContent className="sm:max-w-[425px]">
+          <AlertDialogContent className="md:max-w-3xl">
             <AlertDialogHeader>
-              <AlertDialogTitle>Enter image Url</AlertDialogTitle>
+              <AlertDialogTitle>Copy and paste URL </AlertDialogTitle>
               <AlertDialogDescription>
-                Enter Unsplash URL (make sure it ends with .jpg, .jpeg, or .png)
+                You already know from where 
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex flex-col gap-4">
