@@ -1,15 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
+
 "use client";
 import Authenticate from "@/components/_create/authenticate";
 import TextCustomizer from "@/components/_create/text-customizer";
-import UploadImage from "@/components/_create/upload-image";
+
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/utils/supabase/client";
-import { ArrowDownLeft } from "lucide-react";
+
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { removeBackground } from "@imgly/background-removal";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Loader } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function CreatePage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -47,34 +66,73 @@ export default function CreatePage() {
 // app/app/page.tsx or CreateApp.tsx
 
 function CreateApp() {
-  const [image, setImage] = useState<string | null>(null); // Stores the uploaded image URL
-  const [loading, setLoading] = useState(false); // Manages loading state
-  const [textSets, setTextSets] = useState<Array<any>>([]); // Stores text overlays and their attributes
+  const [originalImage, setOriginalImage] = useState<string | null>(null); // Original uploaded image
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null); // Background-removed image
+  const [loading, setLoading] = useState(false); // Loading state for uploads
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [textSets, setTextSets] = useState<Array<any>>([]); // Text overlays
+  const [isUnsplash, setIsUnsplash] = useState(false); // Unsplash upload dialog toggle
+  const [unsplashUrl, setUnsplashUrl] = useState(""); // Unsplash image URL
 
-  // Handle image upload callback with loader
-  const handleImageUpload = async (url: string) => {
+  // Handle file uploads from device
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setOriginalImage("");
+    setBackgroundImage("");
+    setLoading(true); // Show loading spinner
     try {
-      setLoading(true);
+      const result = await removeBackground(file); // Remove background
+      const originalUrl = URL.createObjectURL(file);
+      const bgRemovedUrl = URL.createObjectURL(result);
 
-      // Validate if it's a valid Unsplash URL
-      if (url.includes("images.unsplash.com")) {
-        // Make sure the URL is properly formatted
-        const imageUrl = new URL(url);
-        setImage(imageUrl.toString());
-      } else if (url.startsWith("blob:")) {
-        // Handle local file uploads
-        setImage(url);
-      } else {
-        throw new Error("Invalid image URL");
-      }
+      setOriginalImage(originalUrl); // Store the original image
+      setBackgroundImage(bgRemovedUrl); // Store the background-removed image
+
+      toast.success("Image uploaded and processed successfully!");
     } catch (error) {
       console.error("Error processing image:", error);
-      toast.error("Failed to load image. Please try again.");
+      toast.error("Failed to process the image.");
     } finally {
-      setLoading(false);
+      setLoading(false); // Hide loading spinner
     }
   };
 
+  // Handle Unsplash URL upload
+  const handleUnsplashSubmit = async () => {
+    if (!unsplashUrl) {
+      toast.error("Please enter a valid URL.");
+      return;
+    }
+    setOriginalImage("");
+    setBackgroundImage("");
+    setLoading(true); // Show loading spinner
+    setIsUnsplash(false); // Close dialog
+    try {
+      const response = await fetch(unsplashUrl);
+      const blob = await response.blob();
+      const file = new File([blob], "unsplash-image", { type: blob.type });
+
+      const result = await removeBackground(file);
+      const originalUrl = URL.createObjectURL(file);
+      const bgRemovedUrl = URL.createObjectURL(result);
+
+      setOriginalImage(originalUrl); // Store the original image
+      setBackgroundImage(bgRemovedUrl); // Store the background-removed image
+
+      toast.success("Unsplash image processed successfully!");
+    } catch (error) {
+      console.error("Error processing Unsplash image:", error);
+      toast.error("Failed to process the Unsplash image.");
+    } finally {
+      setLoading(false); // Hide loading spinner
+      setUnsplashUrl(""); // Clear input
+    }
+  };
+
+  // Add a new text overlay
   const addNewTextSet = () => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
     setTextSets((prev) => [
@@ -82,10 +140,10 @@ function CreateApp() {
       {
         id: newId,
         text: "Edit Text",
-        fontFamily: "Arial",
-        top: 10,
-        left: 10,
-        color: "white",
+        fontFamily: "Inter",
+        top: 0,
+        left: 0,
+        color: "#ffffff",
         fontSize: 24,
         fontWeight: "bold",
         opacity: 1,
@@ -94,52 +152,112 @@ function CreateApp() {
     ]);
   };
 
+  // Update attributes of a specific text overlay
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleAttributeChange = (id: number, attribute: string, value: any) => {
     setTextSets((prev) =>
       prev.map((set) => (set.id === id ? { ...set, [attribute]: value } : set))
     );
   };
 
+  // Remove a specific text overlay
   const removeTextSet = (id: number) => {
     setTextSets((prev) => prev.filter((set) => set.id !== id));
   };
 
   return (
-    <div className="relative  pt-32 flex-1 w-full">
+    <div className="relative pt-20 flex-1 w-full">
       <div className="min-h-screen px-4 lg:px-8 space-y-12">
+        {/* Upload Section */}
         <div className="flex flex-col items-center gap-4">
-          {" "}
           <h1 className="text-6xl text-center font-mono font-extrabold">
             Create Your GIF
           </h1>
-          <UploadImage onImageUpload={handleImageUpload} />
-          {/* {loading && <p>Uploading , removing bg ...</p>} */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant={"default"} disabled={loading}>
+                {loading ? (
+                  <>
+                    Processing ...
+                    <Loader className="animate-spin" />
+                  </>
+                ) : (
+                  <> Upload Image</>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <Button variant="ghost" onClick={() => setIsUnsplash(true)}>
+                  Upload from Unsplash
+                </Button>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Button
+                  variant="ghost"
+                  onClick={() => document.getElementById("fileInput")?.click()}
+                >
+                  Upload from Device
+                </Button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <input
+            id="fileInput"
+            type="file"
+            className="hidden"
+            accept=".jpeg, .png, .jpg"
+            onChange={handleFileChange}
+          />
+
+          {isUnsplash && (
+            <AlertDialog defaultOpen>
+              <AlertDialogTrigger>
+                <> </>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Enter Unsplash URL</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Provide a direct Unsplash image link.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Input
+                  value={unsplashUrl}
+                  onChange={(e) => setUnsplashUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/.."
+                />
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button variant="default" onClick={handleUnsplashSubmit}>
+                    Upload
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      setIsUnsplash(false);
+                      setUnsplashUrl("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
 
-        <div className="relative flex flex-col lg:flex-row max-lg:gap-10 p-3 border rounded-2xl">
-          {image && !loading ? (
-            <div className="border rounded-2xl overflow-hidden">
-              <div className="relative w-full h-[71vh] aspect-video">
-                {image.startsWith("blob:") ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={image}
-                    alt="Uploaded"
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <Image
-                    src={image}
-                    alt="Uploaded"
-                    fill
-                    priority
-                    quality={100}
-                    className="object-cover w-full h-full"
-                    sizes="(100vw 100vh)"
-                  />
-                )}
-              </div>
-
+        {/* Image Preview Section */}
+        <div className="relative flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl">
+          {originalImage && backgroundImage ? (
+            <div className="relative w-full h-[71vh] border rounded-2xl overflow-hidden">
+              {/* Original Image */}
+              <img
+                src={originalImage}
+                alt="Original"
+                className="absolute inset-0 object-cover w-full h-full z-0"
+              />
+              {/* Text Overlays */}
               {textSets.map((textSet) => (
                 <div
                   key={textSet.id}
@@ -153,52 +271,57 @@ function CreateApp() {
                     fontWeight: textSet.fontWeight,
                     fontFamily: textSet.fontFamily,
                     opacity: textSet.opacity,
-                    whiteSpace: "nowrap",
+                    zIndex: 5,
                   }}
                 >
                   {textSet.text}
                 </div>
               ))}
+              {/* Background-Removed Image */}
+              <img
+                src={backgroundImage}
+                alt="Background Removed"
+                className="absolute inset-0 object-cover w-full h-full z-10"
+              />
             </div>
           ) : (
             <div className="relative flex-1 w-full min-h-[60vh] rounded-2xl overflow-hidden">
-              {" "}
               <Image
                 src="/assets/luffy.gif"
                 alt="suspense"
                 fill
                 priority
                 unoptimized
-                className="object-cover h-1/2 w-1/2 "
+                className="object-cover"
               />
             </div>
           )}
 
-          {image && (
-            <div className="relative w-full flex flex-col ">
-              <div className="flex max-sm:flex-col items-center gap-6 my-5 w-max max-lg:mx-auto lg:pl-8">
-                <Button onClick={addNewTextSet} className="">
-                  Add New Text Overlay
-                </Button>{" "}
+          {/* Text Customization Section */}
+          {originalImage && backgroundImage && (
+            <div className="flex flex-col w-full">
+              <div className="flex items-center gap-6 my-5">
+                <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
                 <Button
-                  onClick={() => {
-                    setImage("");
-                  }}
-                  variant={"destructive"}
+                  variant="destructive"
+                  onClick={() => setOriginalImage("")}
                 >
-                  Create GIF ? <ArrowDownLeft />
-                </Button>{" "}
+                  Reset Everything
+                </Button>
               </div>
-
-              <ScrollArea className="h-[62vh] w-full p-2">
-                {textSets.map((textSet) => (
-                  <TextCustomizer
-                    key={textSet.id}
-                    textSet={textSet}
-                    onTextChange={handleAttributeChange}
-                    onDelete={removeTextSet}
-                  />
-                ))}
+              <ScrollArea className="h-[60vh] space-y-3 border p-3 rounded-2xl">
+                {textSets.length > 0 ? (
+                  textSets.map((textSet) => (
+                    <TextCustomizer
+                      key={textSet.id}
+                      textSet={textSet}
+                      onTextChange={handleAttributeChange}
+                      onDelete={removeTextSet}
+                    />
+                  ))
+                ) : (
+                  <h3 className="font-semibold">No Text Overlays Added Yet.</h3>
+                )}
               </ScrollArea>
             </div>
           )}
