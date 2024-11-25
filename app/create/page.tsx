@@ -27,7 +27,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Loader } from "lucide-react";
+import {
+  ArrowRight,
+  ImageDownIcon,
+  Loader,
+  MonitorSmartphone,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function CreatePage() {
@@ -74,29 +79,44 @@ function CreateApp() {
   const [isUnsplash, setIsUnsplash] = useState(false); // Unsplash upload dialog toggle
   const [unsplashUrl, setUnsplashUrl] = useState(""); // Unsplash image URL
 
+  // Reset all states to their initial values
+  const resetEverything = () => {
+    setOriginalImage(null);
+    setBackgroundImage(null);
+    setTextSets([]);
+    setLoading(false);
+    setIsUnsplash(false);
+    setUnsplashUrl("");
+  };
+
   // Handle file uploads from device
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setOriginalImage("");
-    setBackgroundImage("");
-    setLoading(true); // Show loading spinner
+
+    // Reset everything before processing new image
+    resetEverything();
+    setLoading(true);
+
     try {
-      const result = await removeBackground(file); // Remove background
+      const result = await removeBackground(file);
       const originalUrl = URL.createObjectURL(file);
       const bgRemovedUrl = URL.createObjectURL(result);
 
-      setOriginalImage(originalUrl); // Store the original image
-      setBackgroundImage(bgRemovedUrl); // Store the background-removed image
-
+      setOriginalImage(originalUrl);
+      setBackgroundImage(bgRemovedUrl);
       toast.success("Image uploaded and processed successfully!");
     } catch (error) {
       console.error("Error processing image:", error);
       toast.error("Failed to process the image.");
     } finally {
-      setLoading(false); // Hide loading spinner
+      setLoading(false);
+      // Reset the file input value so the same file can be uploaded again
+      if (event.target) {
+        event.target.value = "";
+      }
     }
   };
 
@@ -106,10 +126,11 @@ function CreateApp() {
       toast.error("Please enter a valid URL.");
       return;
     }
-    setOriginalImage("");
-    setBackgroundImage("");
-    setLoading(true); // Show loading spinner
-    setIsUnsplash(false); // Close dialog
+
+    // Reset everything before processing new image
+    resetEverything();
+    setLoading(true);
+
     try {
       const response = await fetch(unsplashUrl);
       const blob = await response.blob();
@@ -119,16 +140,14 @@ function CreateApp() {
       const originalUrl = URL.createObjectURL(file);
       const bgRemovedUrl = URL.createObjectURL(result);
 
-      setOriginalImage(originalUrl); // Store the original image
-      setBackgroundImage(bgRemovedUrl); // Store the background-removed image
-
+      setOriginalImage(originalUrl);
+      setBackgroundImage(bgRemovedUrl);
       toast.success("Unsplash image processed successfully!");
     } catch (error) {
       console.error("Error processing Unsplash image:", error);
       toast.error("Failed to process the Unsplash image.");
     } finally {
-      setLoading(false); // Hide loading spinner
-      setUnsplashUrl(""); // Clear input
+      setLoading(false);
     }
   };
 
@@ -139,7 +158,7 @@ function CreateApp() {
       ...prev,
       {
         id: newId,
-        text: "Edit Text",
+        text: "Customize this",
         fontFamily: "Inter",
         top: 0,
         left: 0,
@@ -169,36 +188,49 @@ function CreateApp() {
     <div className="relative pt-20 flex-1 w-full">
       <div className="min-h-screen px-4 lg:px-8 space-y-12">
         {/* Upload Section */}
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-12">
           <h1 className="text-6xl text-center font-mono font-extrabold">
             Create Your GIF
           </h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant={"default"} disabled={loading}>
+              <Button variant={"default"} disabled={loading} className="font-mono text-xl font-extrabold">
                 {loading ? (
                   <>
                     Processing ...
                     <Loader className="animate-spin" />
                   </>
                 ) : (
-                  <> Upload Image</>
+                  <>
+                    {" "}
+                    Upload Image{" "}
+                    <ArrowRight className="-rotate-45  w-5 h-5 stroke-[3px]" />
+                  </>
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>
-                <Button variant="ghost" onClick={() => setIsUnsplash(true)}>
-                  Upload from Unsplash
-                </Button>
+            <DropdownMenuContent
+              side="bottom"
+              sideOffset={10}
+              className="flex flex-col gap-1 p-2 w-full"
+            >
+              <DropdownMenuItem asChild>
+                <button
+                  className="font-mono text-lg cursor-pointer font-extrabold"
+                  onClick={() => setIsUnsplash(true)}
+                >
+                  <ImageDownIcon className="h-10 w-10 stroke-[2px]" /> from
+                  Unsplash
+                </button>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button
-                  variant="ghost"
+              <DropdownMenuItem asChild>
+                <button
+                  className="font-mono text-lg cursor-pointer font-extrabold"
                   onClick={() => document.getElementById("fileInput")?.click()}
                 >
-                  Upload from Device
-                </Button>
+                  <MonitorSmartphone className="h-10 w-10 stroke-[2px]" /> from
+                  Device
+                </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -216,7 +248,7 @@ function CreateApp() {
               <AlertDialogTrigger>
                 <> </>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="max-w-4xl ">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Enter Unsplash URL</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -273,6 +305,7 @@ function CreateApp() {
                     opacity: textSet.opacity,
                     zIndex: 5,
                   }}
+                  className="whitespace-nowrap"
                 >
                   {textSet.text}
                 </div>
@@ -300,16 +333,13 @@ function CreateApp() {
           {/* Text Customization Section */}
           {originalImage && backgroundImage && (
             <div className="flex flex-col w-full">
-              <div className="flex items-center gap-6 my-5">
+              <div className="flex items-center gap-6 my-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => setOriginalImage("")}
-                >
+                <Button variant="destructive" onClick={resetEverything}>
                   Reset Everything
                 </Button>
               </div>
-              <ScrollArea className="h-[60vh] space-y-3 border p-3 rounded-2xl">
+              <ScrollArea className="relative h-[63vh] space-y-3 border p-3 rounded-2xl">
                 {textSets.length > 0 ? (
                   textSets.map((textSet) => (
                     <TextCustomizer
@@ -320,7 +350,19 @@ function CreateApp() {
                     />
                   ))
                 ) : (
-                  <h3 className="font-semibold">No Text Overlays Added Yet.</h3>
+                  <div className="absolute inset-0 bg-black">
+                    <div className="relative h-full flex items-center justify-center overflow-hidden ">
+                      {/* <Image
+                        src="/assets/car.gif"
+                        alt="logout"
+                        fill
+                        priority
+                        unoptimized
+                        className="object-cover z-0 h-1/2 w-1/2"
+                      /> */}
+                      <Loader className="animate-spin" />
+                    </div>
+                  </div>
                 )}
               </ScrollArea>
             </div>
