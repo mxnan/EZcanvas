@@ -44,7 +44,7 @@ const Accordion = ({
             className="h-5 w-5 stroke-[3px] transition-transform ease-in-out duration-500"
             style={{ transform: isOpen ? "rotate(45deg)" : "rotate(0deg)" }}
           />
-          <span className="font-medium">{title}</span>
+          <span className="font-medium max-w-[100px] truncate">{title}</span>
         </div>
         {rightElement}
       </button>

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/utils/supabase/client";
 
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -160,13 +159,14 @@ function CreateApp() {
         id: newId,
         text: "Customize this",
         fontFamily: "Inter",
-        top: 0,
-        left: 0,
+        top: 50,
+        left: 50,
         color: "#ffffff",
-        fontSize: 24,
-        fontWeight: "bold",
+        fontSize: 48,
+        fontWeight: 500,
         opacity: 1,
         rotation: 0,
+        zIndex: 10,
       },
     ]);
   };
@@ -184,6 +184,13 @@ function CreateApp() {
     setTextSets((prev) => prev.filter((set) => set.id !== id));
   };
 
+  // duplicate textset
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const duplicateTextSet = (textSet: any) => {
+    const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
+    setTextSets((prev) => [...prev, { ...textSet, id: newId }]);
+  };
+
   return (
     <div className="relative pt-20 flex-1 w-full">
       <div className="min-h-screen px-4 lg:px-8 space-y-12">
@@ -194,7 +201,11 @@ function CreateApp() {
           </h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant={"default"} disabled={loading} className="font-mono text-xl font-extrabold">
+              <Button
+                variant={"default"}
+                disabled={loading}
+                className="font-mono text-xl font-extrabold"
+              >
                 {loading ? (
                   <>
                     Processing ...
@@ -280,14 +291,14 @@ function CreateApp() {
         </div>
 
         {/* Image Preview Section */}
-        <div className="relative flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl">
+        <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl ">
           {originalImage && backgroundImage ? (
-            <div className="relative w-full h-[71vh] border rounded-2xl overflow-hidden">
+            <div className="relative h-[40rem] lg:min-h-[36rem] lg:w-[80%]  backdrop-blur-xl border rounded-2xl overflow-hidden">
               {/* Original Image */}
               <img
                 src={originalImage}
                 alt="Original"
-                className="absolute inset-0 object-cover w-full h-full z-0"
+                className="absolute inset-0 object-contain w-full h-full z-2"
               />
               {/* Text Overlays */}
               {textSets.map((textSet) => (
@@ -303,7 +314,7 @@ function CreateApp() {
                     fontWeight: textSet.fontWeight,
                     fontFamily: textSet.fontFamily,
                     opacity: textSet.opacity,
-                    zIndex: 5,
+                    zIndex: textSet.zIndex,
                   }}
                   className="whitespace-nowrap"
                 >
@@ -314,32 +325,33 @@ function CreateApp() {
               <img
                 src={backgroundImage}
                 alt="Background Removed"
-                className="absolute inset-0 object-cover w-full h-full z-10"
+                className="absolute inset-0 object-contain w-full h-full z-20"
               />
             </div>
           ) : (
-            <div className="relative flex-1 w-full min-h-[60vh] rounded-2xl overflow-hidden">
-              <Image
+            <div className="relative flex-1 flex items-center justify-center w-full min-h-[60vh] rounded-2xl overflow-hidden">
+              {/* <Image
                 src="/assets/luffy.gif"
                 alt="suspense"
                 fill
                 priority
                 unoptimized
                 className="object-cover"
-              />
+              /> */}
+              <Loader className="animate-spin" />
             </div>
           )}
 
           {/* Text Customization Section */}
           {originalImage && backgroundImage && (
             <div className="flex flex-col w-full">
-              <div className="flex items-center gap-6 my-4">
+              <div className="flex flex-col sm:flex-row items-center max-lg:justify-center gap-6 my-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
                 <Button variant="destructive" onClick={resetEverything}>
                   Reset Everything
                 </Button>
               </div>
-              <ScrollArea className="relative h-[63vh] space-y-3 border p-3 rounded-2xl">
+              <ScrollArea className="relative h-[40rem] lg:h-[35.7rem] space-y-3 border p-3 rounded-2xl">
                 {textSets.length > 0 ? (
                   textSets.map((textSet) => (
                     <TextCustomizer
@@ -347,10 +359,11 @@ function CreateApp() {
                       textSet={textSet}
                       onTextChange={handleAttributeChange}
                       onDelete={removeTextSet}
+                      onDuplicate={duplicateTextSet}
                     />
                   ))
                 ) : (
-                  <div className="absolute inset-0 bg-black">
+                  <div className="absolute inset-0">
                     <div className="relative h-full flex items-center justify-center overflow-hidden ">
                       {/* <Image
                         src="/assets/car.gif"
