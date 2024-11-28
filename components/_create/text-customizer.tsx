@@ -20,6 +20,8 @@ import {
   CommandList,
 } from "../ui/command";
 import { ALL_FONTS } from "@/constants/fonts";
+import { animationVariants } from "@/constants/variants";
+
 
 interface TextCustomizerProps {
   textSet: {
@@ -34,6 +36,7 @@ interface TextCustomizerProps {
     opacity: number;
     zIndex: number;
     fontWeight: number;
+    animation: keyof typeof animationVariants;
   };
   onTextChange: (id: number, attribute: string, value: any) => void;
   onDelete: (id: number) => void;
@@ -185,13 +188,13 @@ const TextCustomizer = ({
                     }
                   }}
                   min={4}
-                  max={900}
+                  max={500}
                   step={4}
                   className="mt-2 text-xs font-semibold"
                 />
               </div>
             </div>
-            <div>
+            <div className="flex gap-4">
               <Popover>
                 <div className="flex flex-col items-start justify-start my-8">
                   <Label>Font Family</Label>
@@ -243,6 +246,56 @@ const TextCustomizer = ({
                   </Command>
                 </PopoverContent>
               </Popover>
+              <Popover>
+                <div className="flex flex-col items-start justify-start my-8">
+                  <Label>Animation Variant</Label>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      role="combobox"
+                      className={cn("w-[240px] justify-between mt-3 p-2")}
+                    >
+                      {textSet.animation
+                        ? textSet.animation
+                        : "Select animation"}
+                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                </div>
+                <PopoverContent sideOffset={8} className="w-full p-2">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search animation..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No animation found.</CommandEmpty>
+                      <CommandGroup heading="Available Animations">
+                        {Object.keys(animationVariants).map((variant) => (
+                          <CommandItem
+                            value={variant}
+                            key={variant}
+                            onSelect={() =>
+                              onTextChange(textSet.id, "animation", variant)
+                            }
+                            className="hover:cursor-pointer"
+                          >
+                            {variant}
+                            <CheckIcon
+                              className={cn(
+                                "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
+                                variant === textSet.animation
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>
@@ -261,7 +314,7 @@ const TextCustomizer = ({
                   onTextChange(textSet.id, "left", value);
                 }
               }}
-              min={0}
+              min={-100}
               max={100}
               step={1}
               className="mt-2 text-xs font-semibold"
@@ -279,7 +332,7 @@ const TextCustomizer = ({
                   onTextChange(textSet.id, "top", value);
                 }
               }}
-              min={0}
+              min={-100}
               max={100}
               step={1}
               className="mt-2 text-xs font-semibold"

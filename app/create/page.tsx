@@ -3,11 +3,11 @@
 "use client";
 import Authenticate from "@/components/_create/authenticate";
 import TextCustomizer from "@/components/_create/text-customizer";
-
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/utils/supabase/client";
-import "@/app/fonts.css"
+import "@/app/fonts.css";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -33,6 +33,7 @@ import {
   MonitorSmartphone,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { animationVariants } from "@/constants/variants";
 
 export default function CreatePage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -157,15 +158,15 @@ function CreateApp() {
       ...prev,
       {
         id: newId,
-        text: "Customize this",
+        text: "Edit this",
         fontFamily: "Inter",
-        top: 50,
-        left: 50,
-        color: "#ffffff",
+        top: 0,
+        left: 0,
+        color: "currentColor",
         fontSize: 48,
         fontWeight: 500,
         opacity: 1,
-        rotation: 0,
+        rotation: 180,
         zIndex: 10,
       },
     ]);
@@ -195,8 +196,8 @@ function CreateApp() {
     <div className="relative pt-20 flex-1 w-full">
       <div className="min-h-screen px-4 lg:px-8 space-y-6">
         {/* Upload Section */}
-        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
-          <h1 className="text-6xl text-start font-mono font-extrabold mb-4">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
+          <h1 className="text-4xl text-start font-mono font-extrabold">
             Create Your GIF
           </h1>
           <DropdownMenu>
@@ -204,7 +205,7 @@ function CreateApp() {
               <Button
                 variant={"default"}
                 disabled={loading}
-                className="font-mono text-xl font-extrabold"
+                className="font-mono font-extrabold"
               >
                 {loading ? (
                   <>
@@ -294,50 +295,51 @@ function CreateApp() {
         <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl ">
           {originalImage && backgroundImage ? (
             <div className="relative h-[24rem] lg:h-[24rem] aspect-video backdrop-blur-xl lg:border-y-2 overflow-hidden">
-              {/* Original Image */}
-              <img
-                src={originalImage}
-                alt="Original"
-                className="absolute inset-0 object-contain w-full h-full z-0"
-              />
-              {/* Text Overlays */}
-              {textSets.map((textSet) => (
-                <div
-                  key={textSet.id}
-                  style={{
-                    position: "absolute",
-                    top: `${textSet.top}%`,
-                    left: `${textSet.left}%`,
-                    transform: `translate(-50%, -50%) rotate(${textSet.rotation}deg)`,
-                    color: textSet.color,
-                    fontSize: `${textSet.fontSize}px`,
-                    fontWeight: textSet.fontWeight,
-                    fontFamily: textSet.fontFamily,
-                    opacity: textSet.opacity,
-                    zIndex: textSet.zIndex,
-                  }}
-                  className="whitespace-nowrap"
-                >
-                  {textSet.text}
-                </div>
-              ))}
-              {/* Background-Removed Image */}
-              <img
-                src={backgroundImage}
-                alt="Background Removed"
-                className="absolute inset-0 object-contain w-full h-full z-20"
-              />
+              <div className="flex-1">
+                {/* Original Image */}
+                <img
+                  src={originalImage}
+                  alt="Original"
+                  className="absolute inset-0 object-contain w-full h-full z-0"
+                />
+                {/* Text Overlays */}
+                {textSets.map((textSet) => (
+                  <motion.div
+                    key={textSet.id}
+                    style={{
+                      position: "absolute",
+                      top: `${textSet.top}%`,
+                      left: `${textSet.left}%`,
+                      zIndex: textSet.zIndex,
+                      transform: `translate(-50%, -50%) rotate(${textSet.rotation}deg)`,
+                    }}
+                    className="whitespace-nowrap"
+                  >
+                    <motion.p
+                      style={{
+                        color: textSet.color,
+                        fontSize: `${textSet.fontSize}px`,
+                        fontWeight: textSet.fontWeight,
+                        fontFamily: textSet.fontFamily,
+                        opacity: textSet.opacity,
+                      }}
+                      initial={animationVariants[textSet.animation]?.initial}
+                      animate={animationVariants[textSet.animation]?.animate}
+                    >
+                      {textSet.text}
+                    </motion.p>
+                  </motion.div>
+                ))}
+                {/* Background-Removed Image */}
+                <img
+                  src={backgroundImage}
+                  alt="Background Removed"
+                  className="absolute inset-0 object-contain w-full h-full z-20"
+                />
+              </div>
             </div>
           ) : (
             <div className="relative flex-1 flex items-center justify-center w-full min-h-[60vh] rounded-2xl overflow-hidden">
-              {/* <Image
-                src="/assets/luffy.gif"
-                alt="suspense"
-                fill
-                priority
-                unoptimized
-                className="object-cover"
-              /> */}
               <Loader className="animate-spin" />
             </div>
           )}
