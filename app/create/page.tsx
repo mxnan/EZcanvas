@@ -7,7 +7,7 @@ import TextCustomizer from "@/components/_create/text-customizer";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/utils/supabase/client";
-
+import "@/app/fonts.css"
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -193,10 +193,10 @@ function CreateApp() {
 
   return (
     <div className="relative pt-20 flex-1 w-full">
-      <div className="min-h-screen px-4 lg:px-8 space-y-12">
+      <div className="min-h-screen px-4 lg:px-8 space-y-6">
         {/* Upload Section */}
-        <div className="flex flex-col items-center gap-12">
-          <h1 className="text-6xl text-center font-mono font-extrabold">
+        <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
+          <h1 className="text-6xl text-start font-mono font-extrabold mb-4">
             Create Your GIF
           </h1>
           <DropdownMenu>
@@ -293,12 +293,12 @@ function CreateApp() {
         {/* Image Preview Section */}
         <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl ">
           {originalImage && backgroundImage ? (
-            <div className="relative h-[40rem] lg:min-h-[36rem] lg:w-[80%]  backdrop-blur-xl border rounded-2xl overflow-hidden">
+            <div className="relative h-[24rem] lg:h-[24rem] aspect-video backdrop-blur-xl lg:border-y-2 overflow-hidden">
               {/* Original Image */}
               <img
                 src={originalImage}
                 alt="Original"
-                className="absolute inset-0 object-contain w-full h-full z-2"
+                className="absolute inset-0 object-contain w-full h-full z-0"
               />
               {/* Text Overlays */}
               {textSets.map((textSet) => (
@@ -345,7 +345,7 @@ function CreateApp() {
           {/* Text Customization Section */}
           {originalImage && backgroundImage && (
             <div className="flex flex-col w-full">
-              <div className="flex flex-col sm:flex-row items-center max-lg:justify-center gap-6 my-4">
+              <div className="flex flex-col sm:flex-row items-center max-lg:justify-center gap-6 mb-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
                 <Button variant="destructive" onClick={resetEverything}>
                   Reset Everything
