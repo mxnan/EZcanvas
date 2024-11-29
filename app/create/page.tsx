@@ -158,7 +158,7 @@ function CreateApp() {
       ...prev,
       {
         id: newId,
-        text: "Edit this",
+        text: "Change this",
         fontFamily: "Inter",
         top: 0,
         left: 0,
@@ -166,7 +166,7 @@ function CreateApp() {
         fontSize: 48,
         fontWeight: 500,
         opacity: 1,
-        rotation: 180,
+        rotation: 0,
         zIndex: 10,
       },
     ]);
@@ -355,26 +355,20 @@ function CreateApp() {
               </div>
               <ScrollArea className="relative h-[40rem] lg:h-[35.7rem] space-y-3 border p-3 rounded-2xl">
                 {textSets.length > 0 ? (
-                  textSets.map((textSet) => (
-                    <TextCustomizer
-                      key={textSet.id}
-                      textSet={textSet}
-                      onTextChange={handleAttributeChange}
-                      onDelete={removeTextSet}
-                      onDuplicate={duplicateTextSet}
-                    />
-                  ))
+                  [...textSets]
+                    .reverse()
+                    .map((textSet) => (
+                      <TextCustomizer
+                        key={textSet.id}
+                        textSet={textSet}
+                        onTextChange={handleAttributeChange}
+                        onDelete={removeTextSet}
+                        onDuplicate={duplicateTextSet}
+                      />
+                    ))
                 ) : (
                   <div className="absolute inset-0">
                     <div className="relative h-full flex items-center justify-center overflow-hidden ">
-                      {/* <Image
-                        src="/assets/car.gif"
-                        alt="logout"
-                        fill
-                        priority
-                        unoptimized
-                        className="object-cover z-0 h-1/2 w-1/2"
-                      /> */}
                       <Loader className="animate-spin" />
                     </div>
                   </div>

@@ -20,13 +20,7 @@ export default function Authenticate() {
         <Loader className="animate-spin" />
       </div>
 
-      {/* <Image
-          src="/assets/luffy.gif"
-          alt="logout"
-          fill
-          sizes="(100vw, 100vh)"
-          className="object-cover z-0 h-1/2 w-1/2"
-        /> */}
+     
       <AlertDialog defaultOpen>
         <AlertDialogTrigger>
           <> </>
