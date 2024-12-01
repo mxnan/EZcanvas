@@ -233,12 +233,8 @@ function CreateApp() {
             Create Your GIF
           </h1>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant={"default"}
-                disabled={loading}
-                className="font-mono font-extrabold"
-              >
+            <DropdownMenuTrigger disabled={loading} asChild>
+              <Button variant={"default"} className="font-mono font-extrabold">
                 {loading ? (
                   <>
                     Processing ...
@@ -348,7 +344,6 @@ function CreateApp() {
                     className="whitespace-nowrap"
                   >
                     <motion.p
-                    
                       style={{
                         color: textSet.color,
                         fontSize: `${textSet.fontSize}px`,
