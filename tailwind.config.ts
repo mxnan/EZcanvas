@@ -10,6 +10,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      aspectRatio: {
+        'mobile': '9 / 16'
+      },
       fontFamily: {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],

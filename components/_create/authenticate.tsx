@@ -10,18 +10,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import Image from "next/image";
+
+import { Loader } from "lucide-react";
 
 export default function Authenticate() {
   return (
     <div className="relative w-full min-h-screen ">
-        <Image
-          src="/assets/luffy.gif"
-          alt="logout"
-          fill
-          sizes="(100vw, 100vh)"
-          className="object-cover z-0 h-1/2 w-1/2"
-        />
+      <div className="absolute inset-0 w-full h-[40vh] flex items-center justify-center">
+        <Loader className="animate-spin" />
+      </div>
+
+     
       <AlertDialog defaultOpen>
         <AlertDialogTrigger>
           <> </>
