@@ -19,15 +19,59 @@ export const animationVariants: AnimationVariants = {
     animate: {},
   },
   bounce: {
-    initial: { y: [0,-20] },
+    initial: { y: -10 },
     animate: {
-      y: [0,20,0],
+      y: 10,
       transition: {
-        duration: 2,
+        duration: 0.8,
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        mass: 1.2,
         repeat: Infinity,
-        repeatType: "loop",
-      
+        repeatType: "reverse",
+        ease: [0.4, 0, 0.2, 1],
       },
     },
   },
-};
+  fade: {
+    initial: { opacity: 0 },
+    animate: {
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        mass: 1.2,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: [0.4, 0, 0.2, 1],
+      },
+    },
+  },
+  // fade: {
+  //   initial: { opacity: 0 },
+  //   animate: {
+  //     opacity: 1,
+  //     transition: {
+  //       duration: 0.5,
+  //       ease: [0.4, 0, 0.2, 1],
+  //       repeat: Infinity,
+  //       repeatType: "reverse",
+  //     },
+  //   },
+  // },
+  // scale: {
+  //   initial: { scale: 0.9 },
+  //   animate: {
+  //     scale: 1.3,
+  //     transition: {
+  //       duration: 0.5,
+  //       ease: [0.4, 0, 0.2, 1],
+  //       repeat: Infinity,
+  //       repeatType: "reverse",
+  //     },
+  //   },
+  // }
+} as const;

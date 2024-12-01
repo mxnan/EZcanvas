@@ -1,14 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 
 "use client";
 import Authenticate from "@/components/_create/authenticate";
-import TextCustomizer from "@/components/_create/text-customizer";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/utils/supabase/client";
 import "@/app/fonts.css";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -34,6 +34,34 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { animationVariants } from "@/constants/variants";
+import dynamic from "next/dynamic";
+
+const TextCustomizer = dynamic(
+  () => import("@/components/_create/text-customizer"),
+  {
+    ssr: false,
+    loading: () => <div className="h-[200px] animate-pulse bg-secondary/30" />,
+  }
+);
+type AnimationVariants = {
+  [key: string]: any;
+};
+
+// Text Set Types
+export interface TextSet {
+  id: number;
+  text: string;
+  fontFamily: string;
+  top: number;
+  left: number;
+  color: string;
+  fontSize: number;
+  fontWeight: number;
+  opacity: number;
+  rotation: number;
+  zIndex: number;
+  animation: keyof AnimationVariants;
+}
 
 export default function CreatePage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,16 +202,20 @@ function CreateApp() {
 
   // Update attributes of a specific text overlay
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleAttributeChange = (id: number, attribute: string, value: any) => {
-    setTextSets((prev) =>
-      prev.map((set) => (set.id === id ? { ...set, [attribute]: value } : set))
-    );
-  };
+  const handleAttributeChange = useCallback(
+    (id: number, attribute: string, value: any) => {
+      setTextSets((prev) =>
+        prev.map((set) =>
+          set.id === id ? { ...set, [attribute]: value } : set
+        )
+      );
+    },
+    []
+  );
 
-  // Remove a specific text overlay
-  const removeTextSet = (id: number) => {
+  const removeTextSet = useCallback((id: number) => {
     setTextSets((prev) => prev.filter((set) => set.id !== id));
-  };
+  }, []);
 
   // duplicate textset
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -304,7 +336,7 @@ function CreateApp() {
                 />
                 {/* Text Overlays */}
                 {textSets.map((textSet) => (
-                  <motion.div
+                  <div
                     key={textSet.id}
                     style={{
                       position: "absolute",
@@ -316,6 +348,7 @@ function CreateApp() {
                     className="whitespace-nowrap"
                   >
                     <motion.p
+                    
                       style={{
                         color: textSet.color,
                         fontSize: `${textSet.fontSize}px`,
@@ -328,7 +361,7 @@ function CreateApp() {
                     >
                       {textSet.text}
                     </motion.p>
-                  </motion.div>
+                  </div>
                 ))}
                 {/* Background-Removed Image */}
                 <img
