@@ -25,7 +25,7 @@ const UserDetails = () => {
 
   return (
     <>
-      <Link href="/" className="font-mono whitespace-nowrap font-bold">
+      <Link href="/" className="whitespace-nowrap font-bold">
         {user ? (
           <div className="relative rounded-full overflow-hidden size-10 ring-2 ring-green-600">
             <Image

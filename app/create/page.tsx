@@ -4,7 +4,7 @@
 "use client";
 import Authenticate from "@/components/_create/authenticate";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/utils/supabase/client";
 import "@/app/fonts.css";
@@ -18,14 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { removeBackground } from "@imgly/background-removal";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import {
   ArrowRight,
   ImageDownIcon,
@@ -35,6 +28,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { animationVariants } from "@/constants/variants";
 import dynamic from "next/dynamic";
+import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
@@ -229,12 +231,17 @@ function CreateApp() {
       <div className="min-h-screen px-4 lg:px-8 space-y-6">
         {/* Upload Section */}
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
-          <h1 className="text-4xl text-start font-mono font-extrabold">
+          <h1 className="text-4xl text-start  font-extrabold">
             Create Your GIF
           </h1>
           <DropdownMenu>
-            <DropdownMenuTrigger disabled={loading} asChild>
-              <Button variant={"default"} className="font-mono font-extrabold">
+            <DropdownMenuTrigger asChild disabled={loading}>
+              <button
+                className={cn(
+                  " font-extrabold",
+                  buttonVariants({ variant: "default" })
+                )}
+              >
                 {loading ? (
                   <>
                     Processing ...
@@ -242,12 +249,11 @@ function CreateApp() {
                   </>
                 ) : (
                   <>
-                    {" "}
-                    Upload Image{" "}
-                    <ArrowRight className="-rotate-45  w-5 h-5 stroke-[3px]" />
+                    Upload Image
+                    <ArrowRight className="-rotate-45 w-5 h-5 stroke-[3px]" />
                   </>
                 )}
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               side="bottom"
@@ -256,7 +262,7 @@ function CreateApp() {
             >
               <DropdownMenuItem asChild>
                 <button
-                  className="font-mono text-lg cursor-pointer font-extrabold"
+                  className=" text-lg cursor-pointer font-extrabold"
                   onClick={() => setIsUnsplash(true)}
                 >
                   <ImageDownIcon className="h-10 w-10 stroke-[2px]" /> from
@@ -265,7 +271,7 @@ function CreateApp() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <button
-                  className="font-mono text-lg cursor-pointer font-extrabold"
+                  className=" text-lg cursor-pointer font-extrabold"
                   onClick={() => document.getElementById("fileInput")?.click()}
                 >
                   <MonitorSmartphone className="h-10 w-10 stroke-[2px]" /> from
@@ -284,23 +290,27 @@ function CreateApp() {
           />
 
           {isUnsplash && (
-            <AlertDialog defaultOpen>
-              <AlertDialogTrigger>
-                <> </>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-4xl ">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Enter Unsplash URL</AlertDialogTitle>
-                  <AlertDialogDescription>
+            <Dialog open={isUnsplash} onOpenChange={setIsUnsplash}>
+              <DialogContent
+                className="max-w-4xl"
+                onInteractOutside={(e) => {
+                  e.preventDefault();
+                  setIsUnsplash(false);
+                  setUnsplashUrl("");
+                }}
+              >
+                <DialogHeader>
+                  <DialogTitle>Enter Unsplash URL</DialogTitle>
+                  <DialogDescription>
                     Provide a direct Unsplash image link.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
+                  </DialogDescription>
+                </DialogHeader>
                 <Input
                   value={unsplashUrl}
                   onChange={(e) => setUnsplashUrl(e.target.value)}
                   placeholder="https://images.unsplash.com/.."
                 />
-                <div className="flex justify-end gap-2 mt-4">
+                <DialogFooter className="flex justify-end gap-2 mt-4">
                   <Button variant="default" onClick={handleUnsplashSubmit}>
                     Upload
                   </Button>
@@ -313,9 +323,9 @@ function CreateApp() {
                   >
                     Cancel
                   </Button>
-                </div>
-              </AlertDialogContent>
-            </AlertDialog>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
 

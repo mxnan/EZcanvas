@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="relative flex-1 w-full ">
       <div className="w-full mt-24 max-w-xl mx-auto ">
-        <h1 className="text-center font-mono text-4xl font-extrabold my-6 mt-12">IMAGE-TEXT-GIF</h1>
+        <h1 className="text-center  text-4xl font-extrabold my-6 mt-12">IMAGE-TEXT-GIF</h1>
         <div className="relative h-[70vh] rounded-2xl border shadow-2xl overflow-hidden w-full">
           <Image
             src={

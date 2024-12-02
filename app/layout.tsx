@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Orbitron, Space_Grotesk } from "next/font/google";
+import { Chakra_Petch } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
@@ -14,20 +14,12 @@ export const metadata: Metadata = {
   },
 };
 
-const fontmono = Orbitron({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-mono",
-  display: "swap",
-});
-
-const fontsans = Space_Grotesk({
+const fontsans = Chakra_Petch({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,8 +29,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "relative antialiased font-sans scrollbar-hide ",
-          fontmono.variable,
+          "relative antialiased font-sans scrollbar-hide",
           fontsans.variable
         )}
       >
