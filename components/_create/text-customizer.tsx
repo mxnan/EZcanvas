@@ -20,8 +20,7 @@ import {
   CommandList,
 } from "../ui/command";
 import { ALL_FONTS } from "@/constants/fonts";
-import { animationVariants } from "@/constants/variants";
-
+import { ANIMATION_PRESETS } from "@/constants/variants";
 
 interface TextCustomizerProps {
   textSet: {
@@ -36,7 +35,7 @@ interface TextCustomizerProps {
     opacity: number;
     zIndex: number;
     fontWeight: number;
-    animation: keyof typeof animationVariants;
+    animation: keyof typeof ANIMATION_PRESETS;
   };
   onTextChange: (id: number, attribute: string, value: any) => void;
   onDelete: (id: number) => void;
@@ -188,8 +187,8 @@ const TextCustomizer = ({
                     }
                   }}
                   min={4}
-                  max={500}
-                  step={4}
+                  max={200}
+                  step={2}
                   className="mt-2 text-xs font-semibold"
                 />
               </div>
@@ -256,7 +255,7 @@ const TextCustomizer = ({
                       className={cn("w-[240px] justify-between mt-3 p-2")}
                     >
                       {textSet.animation
-                        ? textSet.animation
+                        ? ANIMATION_PRESETS[textSet.animation].name
                         : "Select animation"}
                       <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -271,26 +270,33 @@ const TextCustomizer = ({
                     <CommandList>
                       <CommandEmpty>No animation found.</CommandEmpty>
                       <CommandGroup heading="Available Animations">
-                        {Object.keys(animationVariants).map((variant) => (
-                          <CommandItem
-                            value={variant}
-                            key={variant}
-                            onSelect={() =>
-                              onTextChange(textSet.id, "animation", variant)
-                            }
-                            className="hover:cursor-pointer"
-                          >
-                            {variant}
-                            <CheckIcon
-                              className={cn(
-                                "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
-                                variant === textSet.animation
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
+                        {Object.entries(ANIMATION_PRESETS).map(
+                          ([key, preset]) => (
+                            <CommandItem
+                              key={key}
+                              value={key}
+                              onSelect={() =>
+                                onTextChange(textSet.id, "animation", key)
+                              }
+                              className="hover:cursor-pointer"
+                            >
+                              <div className="flex flex-col">
+                                <span>{preset.name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {preset.description}
+                                </span>
+                              </div>
+                              <CheckIcon
+                                className={cn(
+                                  "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
+                                  key === textSet.animation
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          )
+                        )}
                       </CommandGroup>
                     </CommandList>
                   </Command>

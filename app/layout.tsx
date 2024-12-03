@@ -13,8 +13,7 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
   },
 };
-
-const fontsans = Chakra_Petch({
+export const fontsans = Chakra_Petch({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",

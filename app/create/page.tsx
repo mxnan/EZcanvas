@@ -26,7 +26,7 @@ import {
   MonitorSmartphone,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { animationVariants } from "@/constants/variants";
+
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import {
@@ -37,6 +37,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ANIMATION_PRESETS } from "@/constants/variants";
 
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
@@ -45,9 +46,9 @@ const TextCustomizer = dynamic(
     loading: () => <div className="h-[200px] animate-pulse bg-secondary/30" />,
   }
 );
-type AnimationVariants = {
-  [key: string]: any;
-};
+// type AnimationVariants = {
+//   [key: string]: any;
+// };
 
 // Text Set Types
 export interface TextSet {
@@ -62,7 +63,7 @@ export interface TextSet {
   opacity: number;
   rotation: number;
   zIndex: number;
-  animation: keyof AnimationVariants;
+  animation: keyof typeof ANIMATION_PRESETS;
 }
 
 export default function CreatePage() {
@@ -198,6 +199,7 @@ function CreateApp() {
         opacity: 1,
         rotation: 0,
         zIndex: 10,
+        animation: "none",
       },
     ]);
   };
@@ -342,31 +344,35 @@ function CreateApp() {
                 />
                 {/* Text Overlays */}
                 {textSets.map((textSet) => (
-                  <div
+                  <motion.div
                     key={textSet.id}
                     style={{
-                      position: "absolute",
                       top: `${textSet.top}%`,
                       left: `${textSet.left}%`,
                       zIndex: textSet.zIndex,
-                      transform: `translate(-50%, -50%) rotate(${textSet.rotation}deg)`,
+                      opacity: textSet.opacity,
+                      rotate: textSet.rotation,
                     }}
-                    className="whitespace-nowrap"
+                    className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap"
                   >
-                    <motion.p
+                    <motion.div
                       style={{
                         color: textSet.color,
                         fontSize: `${textSet.fontSize}px`,
                         fontWeight: textSet.fontWeight,
                         fontFamily: textSet.fontFamily,
-                        opacity: textSet.opacity,
                       }}
-                      initial={animationVariants[textSet.animation]?.initial}
-                      animate={animationVariants[textSet.animation]?.animate}
+                      initial={
+                        ANIMATION_PRESETS[textSet.animation]?.variant.initial
+                      }
+                      animate={
+                        ANIMATION_PRESETS[textSet.animation]?.variant.animate
+                      }
+                      transition={{ type: "tween" }}
                     >
                       {textSet.text}
-                    </motion.p>
-                  </div>
+                    </motion.div>
+                  </motion.div>
                 ))}
                 {/* Background-Removed Image */}
                 <img
