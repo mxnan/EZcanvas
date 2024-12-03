@@ -27,6 +27,7 @@
     "cmdk": "^1.0.0",
     "framer-motion": "^11.11.11",
     "lucide-react": "^0.454.0",
+    "modern-gif": "^2.0.3",
     "next": "15.0.2",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",

@@ -21,6 +21,7 @@ import { removeBackground } from "@imgly/background-removal";
 
 import {
   ArrowRight,
+  Download,
   ImageDownIcon,
   Loader,
   MonitorSmartphone,
@@ -38,6 +39,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ANIMATION_PRESETS } from "@/constants/variants";
+import Image from "next/image";
+import { useGifGenerator } from "@/hooks/use-gif-gen";
+// import { useGifGenerator } from "@/hooks/use-gif";
 
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
@@ -109,6 +113,8 @@ function CreateApp() {
   const [textSets, setTextSets] = useState<Array<any>>([]); // Text overlays
   const [isUnsplash, setIsUnsplash] = useState(false); // Unsplash upload dialog toggle
   const [unsplashUrl, setUnsplashUrl] = useState(""); // Unsplash image URL
+  // Add these new states with your existing ones
+  const { isGenerating, generatedGif, generateGif } = useGifGenerator();
 
   // Reset all states to their initial values
   const resetEverything = () => {
@@ -182,6 +188,26 @@ function CreateApp() {
     }
   };
 
+  const handleGifGeneration = async () => {
+    if (!originalImage || !backgroundImage || !textSets.length) {
+      toast.error("Please add an image and at least one text overlay");
+      return;
+    }
+  
+    try {
+      await generateGif({
+        images: [originalImage, backgroundImage],
+        textData: textSets,
+        gifWidth: 1024,
+        gifHeight: 768,
+        delay: 100, // Half second delay between frames
+      });
+    } catch (error) {
+      console.error("Error generating GIF:", error);
+      toast.error("Failed to generate GIF");
+    }
+  };
+
   // Add a new text overlay
   const addNewTextSet = () => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
@@ -230,7 +256,7 @@ function CreateApp() {
 
   return (
     <div className="relative pt-20 flex-1 w-full">
-      <div className="min-h-screen px-4 lg:px-8 space-y-6">
+      <div className="min-h-screen px-4 lg:px-8 space-y-6 pb-24">
         {/* Upload Section */}
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
           <h1 className="text-4xl text-start  font-extrabold">
@@ -393,8 +419,22 @@ function CreateApp() {
             <div className="flex flex-col w-full">
               <div className="flex flex-col sm:flex-row items-center max-lg:justify-center gap-6 mb-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
-                <Button variant="destructive" onClick={resetEverything}>
+                {/* <Button variant="destructive" onClick={resetEverything}>
                   Reset Everything
+                </Button> */}
+                <Button
+                  onClick={handleGifGeneration}
+                  disabled={isGenerating || !textSets.length}
+                  className="gap-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      Generating GIF
+                      <Loader className="h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    "Generate GIF"
+                  )}
                 </Button>
               </div>
               <ScrollArea className="relative h-[40rem] lg:h-[35.7rem] space-y-3 border p-3 rounded-2xl">
@@ -421,6 +461,36 @@ function CreateApp() {
             </div>
           )}
         </div>
+
+        {generatedGif && (
+          <div className="mt-6 border rounded-lg p-4">
+            <h2 className="text-xl font-bold mb-4">Generated GIF Preview</h2>
+            <div className="relative aspect-video h-96 w-full overflow-hidden rounded-lg">
+              <Image
+                src={generatedGif}
+                alt="Generated GIF"
+                fill
+                priority
+                unoptimized
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="mt-4 flex justify-end">
+              <Button
+                onClick={() => {
+                  const link = document.createElement("a");
+                  link.href = generatedGif;
+                  link.download = "mxnan-image-text.gif";
+                  link.click();
+                }}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download GIF
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

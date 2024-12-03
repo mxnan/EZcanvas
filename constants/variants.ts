@@ -18,7 +18,7 @@ export const ANIMATION_PRESETS: Record<string, AnimationPreset> = {
     variant: {
       initial: { y: 0 },
       animate: {
-        y: [-10, 10],
+        y: [-30, 30],
         transition: {
           duration: 2,
           ease: EASE_IN_OUT,
@@ -53,7 +53,7 @@ export const ANIMATION_PRESETS: Record<string, AnimationPreset> = {
     variant: {
       initial: { scale: 1 },
       animate: {
-        scale: [1, 1.1],
+        scale: [1, 1.5],
         transition: {
           duration: 1.5,
           ease: EASE_IN_OUT,
