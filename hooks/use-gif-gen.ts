@@ -35,15 +35,15 @@ export function useGifGenerator() {
       );
 
       // Create frames for animation
-      const frameCount = 60; // Number of frames for animation
+      const frameCount = 30; // Number of frames for animation
       const frames = [];
 
       for (let i = 0; i < frameCount; i++) {
         const progress = i / (frameCount - 1); // 0 to 1
         
         const canvas = document.createElement('canvas');
-        canvas.width = options.gifWidth || 1024;
-        canvas.height = options.gifHeight || 768;
+        canvas.width = options.gifWidth || 0;
+        canvas.height = options.gifHeight || 0;
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         
         if (!ctx) throw new Error('Failed to get canvas context');
@@ -122,14 +122,14 @@ export function useGifGenerator() {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         frames.push({
           data: imageData.data,
-          delay: options.delay || 50 // Shorter delay for smoother animation
+          delay: options.delay || 0 // Shorter delay for smoother animation
         });
       }
 
       // Generate GIF
       const output = await encode({
-        width: options.gifWidth || 800,
-        height: options.gifHeight || 600,
+        width: options.gifWidth || 0,
+        height: options.gifHeight || 0,
         frames
       });
 

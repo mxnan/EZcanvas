@@ -193,14 +193,21 @@ function CreateApp() {
       toast.error("Please add an image and at least one text overlay");
       return;
     }
-  
+
     try {
+      // Get original image dimensions
+      const img = document.createElement('img');
+      await new Promise<void>((resolve) => {
+        img.onload = () => resolve();
+        img.src = originalImage;
+      });
+
       await generateGif({
         images: [originalImage, backgroundImage],
         textData: textSets,
-        gifWidth: 1024,
-        gifHeight: 768,
-        delay: 100, // Half second delay between frames
+        gifWidth: img.naturalWidth,
+        gifHeight: img.naturalHeight,
+        delay: 0,
       });
     } catch (error) {
       console.error("Error generating GIF:", error);
