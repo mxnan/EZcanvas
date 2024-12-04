@@ -3,7 +3,6 @@
 
 "use client";
 import Authenticate from "@/components/_create/authenticate";
-import { motion } from "framer-motion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/utils/supabase/client";
@@ -25,6 +24,7 @@ import {
   ImageDownIcon,
   Loader,
   MonitorSmartphone,
+  SquareX,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -38,7 +38,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ANIMATION_PRESETS } from "@/constants/variants";
+
 import Image from "next/image";
 import { useGifGenerator } from "@/hooks/use-gif-gen";
 // import { useGifGenerator } from "@/hooks/use-gif";
@@ -67,7 +67,6 @@ export interface TextSet {
   opacity: number;
   rotation: number;
   zIndex: number;
-  animation: keyof typeof ANIMATION_PRESETS;
 }
 
 export default function CreatePage() {
@@ -106,6 +105,44 @@ export default function CreatePage() {
 // app/app/page.tsx or CreateApp.tsx
 
 function CreateApp() {
+  const containerWidth = 500; // Max preview container width
+  const containerHeight = 300; // Max preview container height
+  const SCALE_FACTOR = 2; // Scale factor for final GIF resolution
+
+  const [imageDimensions, setImageDimensions] = useState({
+    preview: { width: 0, height: 0 },
+    final: { width: 0, height: 0 },
+  });
+
+  // Calculate both preview and final dimensions
+  const calculateDimensions = (
+    originalWidth: number,
+    originalHeight: number
+  ) => {
+    let previewWidth = containerWidth;
+    let previewHeight = containerHeight;
+    const aspectRatio = originalWidth / originalHeight;
+
+    if (originalHeight > originalWidth) {
+      // Portrait
+      previewHeight = containerHeight;
+      previewWidth = previewHeight * aspectRatio;
+    } else {
+      // Landscape
+      previewWidth = containerWidth;
+      previewHeight = previewWidth / aspectRatio;
+    }
+
+    // Calculate final dimensions (scaled up)
+    const finalWidth = previewWidth * SCALE_FACTOR;
+    const finalHeight = previewHeight * SCALE_FACTOR;
+
+    return {
+      preview: { width: previewWidth, height: previewHeight },
+      final: { width: finalWidth, height: finalHeight },
+    };
+  };
+
   const [originalImage, setOriginalImage] = useState<string | null>(null); // Original uploaded image
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null); // Background-removed image
   const [loading, setLoading] = useState(false); // Loading state for uploads
@@ -114,7 +151,8 @@ function CreateApp() {
   const [isUnsplash, setIsUnsplash] = useState(false); // Unsplash upload dialog toggle
   const [unsplashUrl, setUnsplashUrl] = useState(""); // Unsplash image URL
   // Add these new states with your existing ones
-  const { isGenerating, generatedGif, generateGif } = useGifGenerator();
+  const { isGenerating, generatedGif, generateGif, setGeneratedGif } =
+    useGifGenerator();
 
   // Reset all states to their initial values
   const resetEverything = () => {
@@ -124,23 +162,34 @@ function CreateApp() {
     setLoading(false);
     setIsUnsplash(false);
     setUnsplashUrl("");
+    setGeneratedGif(null); // Now this will work properly
   };
 
   // Handle file uploads from device
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    resetEverything(); // Reset everything before processing new image
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Reset everything before processing new image
-    resetEverything();
     setLoading(true);
 
     try {
       const result = await removeBackground(file);
       const originalUrl = URL.createObjectURL(file);
       const bgRemovedUrl = URL.createObjectURL(result);
+
+      // Get image dimensions
+      const img = new (window as any).Image();
+      img.onload = () => {
+        const dimensions = calculateDimensions(
+          img.naturalWidth,
+          img.naturalHeight
+        );
+        setImageDimensions(dimensions);
+      };
+      img.src = originalUrl;
 
       setOriginalImage(originalUrl);
       setBackgroundImage(bgRemovedUrl);
@@ -159,13 +208,12 @@ function CreateApp() {
 
   // Handle Unsplash URL upload
   const handleUnsplashSubmit = async () => {
+    resetEverything(); // Reset everything before processing new image
     if (!unsplashUrl) {
       toast.error("Please enter a valid URL.");
       return;
     }
 
-    // Reset everything before processing new image
-    resetEverything();
     setLoading(true);
 
     try {
@@ -176,6 +224,17 @@ function CreateApp() {
       const result = await removeBackground(file);
       const originalUrl = URL.createObjectURL(file);
       const bgRemovedUrl = URL.createObjectURL(result);
+
+      // Get image dimensions
+      const img = new (window as any).Image();
+      img.onload = () => {
+        const dimensions = calculateDimensions(
+          img.naturalWidth,
+          img.naturalHeight
+        );
+        setImageDimensions(dimensions);
+      };
+      img.src = originalUrl;
 
       setOriginalImage(originalUrl);
       setBackgroundImage(bgRemovedUrl);
@@ -195,18 +254,19 @@ function CreateApp() {
     }
 
     try {
-      // Get original image dimensions
-      const img = document.createElement('img');
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.src = originalImage;
-      });
+      // Scale up text properties for final GIF
+      const scaledTextSets = textSets.map((textSet) => ({
+        ...textSet,
+        fontSize: textSet.fontSize * SCALE_FACTOR,
+        // Keep percentage-based properties (top, left) the same
+        // as they're relative to dimensions
+      }));
 
       await generateGif({
         images: [originalImage, backgroundImage],
-        textData: textSets,
-        gifWidth: img.naturalWidth,
-        gifHeight: img.naturalHeight,
+        textData: scaledTextSets,
+        gifWidth: imageDimensions.final.width,
+        gifHeight: imageDimensions.final.height,
         delay: 0,
       });
     } catch (error) {
@@ -232,7 +292,6 @@ function CreateApp() {
         opacity: 1,
         rotation: 0,
         zIndex: 10,
-        animation: "none",
       },
     ]);
   };
@@ -259,6 +318,17 @@ function CreateApp() {
   const duplicateTextSet = (textSet: any) => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
     setTextSets((prev) => [...prev, { ...textSet, id: newId }]);
+  };
+
+  // Download GIF and reset states
+  const downloadGif = () => {
+    if (!generatedGif) return;
+    const link = document.createElement("a");
+    link.href = generatedGif;
+    link.download = "mxnan-image-text.gif";
+    link.click();
+    toast.success("GIF downloaded successfully!");
+    // resetEverything(); // Reset everything after downloading the GIF
   };
 
   return (
@@ -365,53 +435,59 @@ function CreateApp() {
         </div>
 
         {/* Image Preview Section */}
-        <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl ">
+        <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl">
           {originalImage && backgroundImage ? (
-            <div className="relative h-[24rem] lg:h-[24rem] aspect-video backdrop-blur-xl lg:border-y-2 overflow-hidden">
-              <div className="flex-1">
+            <div
+              className="relative mx-auto"
+              style={{
+                width: imageDimensions.preview.width,
+                height: imageDimensions.preview.height,
+                maxWidth: "100%",
+                aspectRatio: `${imageDimensions.preview.width} / ${imageDimensions.preview.height}`,
+              }}
+            >
+              <div className="flex-1 relative w-full h-full">
                 {/* Original Image */}
                 <img
                   src={originalImage}
                   alt="Original"
-                  className="absolute inset-0 object-contain w-full h-full z-0"
+                  style={{
+                    width: imageDimensions.preview.width,
+                    height: imageDimensions.preview.height,
+                  }}
+                  className="absolute inset-0 object-contain z-0"
                 />
                 {/* Text Overlays */}
                 {textSets.map((textSet) => (
-                  <motion.div
+                  <div
                     key={textSet.id}
                     style={{
+                      position: "absolute",
                       top: `${textSet.top}%`,
                       left: `${textSet.left}%`,
+                      transform: `translate(-50%, -50%)`,
+                      color: textSet.color,
+                      fontSize: `${textSet.fontSize}px`,
+                      fontWeight: textSet.fontWeight,
+                      fontFamily: textSet.fontFamily,
                       zIndex: textSet.zIndex,
                       opacity: textSet.opacity,
-                      rotate: textSet.rotation,
+                      rotate: `${textSet.rotation}deg`,
                     }}
-                    className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap"
+                    className="whitespace-nowrap"
                   >
-                    <motion.div
-                      style={{
-                        color: textSet.color,
-                        fontSize: `${textSet.fontSize}px`,
-                        fontWeight: textSet.fontWeight,
-                        fontFamily: textSet.fontFamily,
-                      }}
-                      initial={
-                        ANIMATION_PRESETS[textSet.animation]?.variant.initial
-                      }
-                      animate={
-                        ANIMATION_PRESETS[textSet.animation]?.variant.animate
-                      }
-                      transition={{ type: "tween" }}
-                    >
-                      {textSet.text}
-                    </motion.div>
-                  </motion.div>
+                    {textSet.text}
+                  </div>
                 ))}
                 {/* Background-Removed Image */}
                 <img
                   src={backgroundImage}
                   alt="Background Removed"
-                  className="absolute inset-0 object-contain w-full h-full z-20"
+                  style={{
+                    width: imageDimensions.preview.width,
+                    height: imageDimensions.preview.height,
+                  }}
+                  className="absolute inset-0 object-contain z-20"
                 />
               </div>
             </div>
@@ -426,13 +502,24 @@ function CreateApp() {
             <div className="flex flex-col w-full">
               <div className="flex flex-col sm:flex-row items-center max-lg:justify-center gap-6 mb-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
+                <Button
+                  onClick={() => {
+                    setTextSets([]);
+                    toast.success("Text overlays cleared");
+                  }}
+                >
+                  Reset textsets
+                </Button>
                 {/* <Button variant="destructive" onClick={resetEverything}>
                   Reset Everything
                 </Button> */}
                 <Button
                   onClick={handleGifGeneration}
-                  disabled={isGenerating || !textSets.length}
+                  disabled={Boolean(
+                    isGenerating || !textSets.length || generatedGif
+                  )}
                   className="gap-2"
+                  variant={"destructive"}
                 >
                   {isGenerating ? (
                     <>
@@ -482,20 +569,25 @@ function CreateApp() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="mt-4 flex justify-end">
-              <Button
-                onClick={() => {
-                  const link = document.createElement("a");
-                  link.href = generatedGif;
-                  link.download = "mxnan-image-text.gif";
-                  link.click();
-                }}
-                className="gap-2"
-              >
+            <div className="mt-6 flex max-sm:flex-col gap-4 justify-center">
+              <Button onClick={downloadGif} className="gap-2">
                 <Download className="h-4 w-4" />
                 Download GIF
               </Button>
+              <Button
+                variant={"destructive"}
+                onClick={() => {
+                  setGeneratedGif(null);
+                }}
+                className="gap-2"
+              >
+                <SquareX /> Modify this further
+              </Button>
             </div>
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Note: If you need to modify this GIF, click &quot;Modify this further&quot; to return to editing and generate new gif. Otherwise, upload a new image
+              to start fresh.
+            </p>
           </div>
         )}
       </div>
