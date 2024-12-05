@@ -1,16 +1,34 @@
+"use client";
 import { useUserStore } from "@/store/use-user-store";
-import React from "react";
 import { Button } from "../ui/button";
+import { useState } from "react";
+import PayDialog from "./pay-dialog";
 
 export default function GenCount() {
   const { profile } = useUserStore();
+  const [showPayDialog, setShowPayDialog] = useState(false);
 
   if (!profile || profile.lifetime_subscription) return null;
+
   return (
     <>
-      <p> {profile.free_generations_left} gens left !!</p>
+      <div className="flex items-center gap-4">
+        <p className="text-sm font-medium">
+          {profile.free_generations_left} gens left
+        </p>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => setShowPayDialog(true)}
+        >
+          Upgrade
+        </Button>
+      </div>
 
-      <Button variant={"destructive"}>Upgrade ?</Button>
+      <PayDialog
+        isOpen={showPayDialog}
+        onClose={() => setShowPayDialog(false)}
+      />
     </>
   );
 }

@@ -44,6 +44,7 @@ import { useGifGenerator } from "@/hooks/use-gif-gen";
 import { useUserStore } from "@/store/use-user-store";
 import GenCount from "@/components/_create/gen-count";
 // import { useGifGenerator } from "@/hooks/use-gif";
+import PayDialog from "@/components/_create/pay-dialog";
 
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
@@ -92,7 +93,7 @@ export default function CreatePage() {
 // app/app/page.tsx or CreateApp.tsx
 
 function CreateApp() {
-  const containerWidth = 500; // Max preview container width
+  const containerWidth = 450; // Max preview container width
   const containerHeight = 300; // Max preview container height
   const SCALE_FACTOR = 2; // Scale factor for final GIF resolution
 
@@ -133,10 +134,10 @@ function CreateApp() {
   const [originalImage, setOriginalImage] = useState<string | null>(null); // Original uploaded image
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null); // Background-removed image
   const [loading, setLoading] = useState(false); // Loading state for uploads
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [textSets, setTextSets] = useState<Array<any>>([]); // Text overlays
+  const [textSets, setTextSets] = useState<Array<TextSet>>([]); // Text overlays
   const [isUnsplash, setIsUnsplash] = useState(false); // Unsplash upload dialog toggle
-  const [unsplashUrl, setUnsplashUrl] = useState(""); // Unsplash image URL
+  const [unsplashUrl, setUnsplashUrl] = useState("");
+  const [showPayDialog, setShowPayDialog] = useState(false); // Unsplash image URL
   // Add these new states with your existing ones
   const { isGenerating, generatedGif, generateGif, setGeneratedGif } =
     useGifGenerator();
@@ -159,7 +160,7 @@ function CreateApp() {
     const { checkCanGenerate, decrementGenerations } = useUserStore.getState();
 
     if (!checkCanGenerate()) {
-      toast.error("No generations left. Please upgrade to continue.");
+      setShowPayDialog(true);
       return;
     }
     // free gen check
@@ -207,7 +208,7 @@ function CreateApp() {
     const { checkCanGenerate, decrementGenerations } = useUserStore.getState();
 
     if (!checkCanGenerate()) {
-      toast.error("No generations left. Please upgrade to continue.");
+      setShowPayDialog(true);
       return;
     }
     // free gen check
@@ -389,7 +390,7 @@ function CreateApp() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-           <GenCount />
+          <GenCount />
           <input
             id="fileInput"
             type="file"
@@ -442,7 +443,7 @@ function CreateApp() {
         <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl">
           {originalImage && backgroundImage ? (
             <div
-              className="relative mx-auto"
+              className="relative mx-auto lg:mx-8"
               style={{
                 width: imageDimensions.preview.width,
                 height: imageDimensions.preview.height,
@@ -596,6 +597,10 @@ function CreateApp() {
           </div>
         )}
       </div>
+      <PayDialog
+        isOpen={showPayDialog}
+        onClose={() => setShowPayDialog(false)}
+      />
     </div>
   );
 }
