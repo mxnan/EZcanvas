@@ -5,9 +5,9 @@
 import Authenticate from "@/components/_create/authenticate";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { createClient } from "@/utils/supabase/client";
+
 import "@/app/fonts.css";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -41,6 +41,8 @@ import {
 
 import Image from "next/image";
 import { useGifGenerator } from "@/hooks/use-gif-gen";
+import { useUserStore } from "@/store/use-user-store";
+import GenCount from "@/components/_create/gen-count";
 // import { useGifGenerator } from "@/hooks/use-gif";
 
 const TextCustomizer = dynamic(
@@ -70,33 +72,18 @@ export interface TextSet {
 }
 
 export default function CreatePage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const supabase = createClient();
+  const { profile, isLoading } = useUserStore();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false); // Set loading to false once user check completes
-    };
-    fetchUser();
-  }, [supabase]);
-
-  if (loading) {
-    return null; // Optionally, you could show a spinner or loading text here
+  if (isLoading) {
+    return <Authenticate showDialog={false} />;
   }
 
-  if (!user) {
-    return <Authenticate />;
+  if (!profile) {
+    return <Authenticate showDialog={true} />;
   }
-  ////////////////////////// supabase logic /////////////////////////////
 
   return (
-    <section className="relative flex-1 w-full ">
+    <section className="relative flex-1 w-full">
       <CreateApp />
     </section>
   );
@@ -169,6 +156,14 @@ function CreateApp() {
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const { checkCanGenerate, decrementGenerations } = useUserStore.getState();
+
+    if (!checkCanGenerate()) {
+      toast.error("No generations left. Please upgrade to continue.");
+      return;
+    }
+    // free gen check
+
     resetEverything(); // Reset everything before processing new image
     const file = event.target.files?.[0];
     if (!file) return;
@@ -193,6 +188,7 @@ function CreateApp() {
 
       setOriginalImage(originalUrl);
       setBackgroundImage(bgRemovedUrl);
+      await decrementGenerations();
       toast.success("Image uploaded and processed successfully!");
     } catch (error) {
       console.error("Error processing image:", error);
@@ -208,6 +204,13 @@ function CreateApp() {
 
   // Handle Unsplash URL upload
   const handleUnsplashSubmit = async () => {
+    const { checkCanGenerate, decrementGenerations } = useUserStore.getState();
+
+    if (!checkCanGenerate()) {
+      toast.error("No generations left. Please upgrade to continue.");
+      return;
+    }
+    // free gen check
     resetEverything(); // Reset everything before processing new image
     if (!unsplashUrl) {
       toast.error("Please enter a valid URL.");
@@ -238,6 +241,7 @@ function CreateApp() {
 
       setOriginalImage(originalUrl);
       setBackgroundImage(bgRemovedUrl);
+      await decrementGenerations();
       toast.success("Unsplash image processed successfully!");
     } catch (error) {
       console.error("Error processing Unsplash image:", error);
@@ -385,7 +389,7 @@ function CreateApp() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
+           <GenCount />
           <input
             id="fileInput"
             type="file"
@@ -585,8 +589,9 @@ function CreateApp() {
               </Button>
             </div>
             <p className="text-center text-sm text-muted-foreground mt-4">
-              Note: If you need to modify this GIF, click &quot;Modify this further&quot; to return to editing and generate new gif. Otherwise, upload a new image
-              to start fresh.
+              Note: If you need to modify this GIF, click &quot;Modify this
+              further&quot; to return to editing and generate new gif.
+              Otherwise, upload a new image to start fresh.
             </p>
           </div>
         )}

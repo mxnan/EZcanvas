@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/nav/navbar";
+import { StoreProvider } from "@/providers/store-provider";
 
 export const metadata: Metadata = {
   title: "Image Text Gif",
@@ -38,9 +39,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          {children}
-          <Toaster position="top-right" />
+          <StoreProvider>
+            <Navbar />
+            {children}
+            <Toaster position="top-right" />
+          </StoreProvider>
         </ThemeProvider>
       </body>
     </html>

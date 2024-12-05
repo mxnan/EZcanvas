@@ -10,9 +10,9 @@ export async function signout() {
   const { error } = await supabase.auth.signOut();
   if (error) {
     toast.error(error.message);
-    redirect("/error");
+    return false;
   }
-  redirect("/logout");
+  return true;
 }
 
 export async function signInWithGoogle() {

@@ -1,50 +1,39 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "../ui/button";
-import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowDownLeft, ArrowDownRight } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { useUserStore } from "@/store/use-user-store";
 
 const CTAButton = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [user, setUser] = useState<any>(null);
-  const supabase = createClient();
-  const pathname = usePathname();
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    fetchUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  const { profile, reset } = useUserStore();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const success = await signout();
+    if (success) {
+      reset();
+      router.push("/");
+      router.refresh();
+    }
+  };
 
   return (
     <>
-      {user ? (
+      {profile ? (
         <Button
-          size={"icon"}
-          variant={"destructive"}
-          className="text-sm font-bold "
-          onClick={() => {
-            
-            signout();
-            setUser(null);
-          }}
+          size="icon"
+          variant="destructive"
+          className="text-sm font-bold"
+          onClick={handleSignOut}
         >
           <ArrowDownLeft />
         </Button>
       ) : (
         <Link href="/create">
-          <Button
-            className="text-sm font-bold"
-            size={"icon"}
-            variant={"default"}
-          >
+          <Button className="text-sm font-bold" size="icon" variant="default">
             <ArrowDownRight />
           </Button>
         </Link>
