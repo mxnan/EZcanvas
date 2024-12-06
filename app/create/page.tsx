@@ -35,7 +35,7 @@ const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
   {
     ssr: false,
-    loading: () => <div className="h-[200px] animate-pulse bg-secondary/30" />,
+    loading: () => <div className="h-[170px] animate-pulse bg-secondary/30" />,
   }
 );
 

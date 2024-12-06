@@ -11,7 +11,7 @@ const UserDetails = () => {
   return (
     <Link href="/" className="whitespace-nowrap font-bold">
       {profile ? (
-        <div className="relative rounded-full overflow-hidden size-10 ring-2 ring-green-600">
+        <div className="relative rounded-full overflow-hidden size-8 ring-2 ring-green-600">
           <Image
             src={profile.avatar_url}
             alt="avatar"
