@@ -31,6 +31,8 @@ import { ImageProcessorResult } from "@/types/image";
 import { useImageProcessor } from "@/components/_create/image-processor";
 import { UnsplashDialog } from "@/components/_create/unsplash-dialog";
 import dynamic from "next/dynamic";
+import {  AnimationType } from "@/types/animation";
+import { TextSet } from "@/types/text";
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
   {
@@ -39,20 +41,6 @@ const TextCustomizer = dynamic(
   }
 );
 
-// Text Set Types
-export interface TextSet {
-  id: number;
-  text: string;
-  fontFamily: string;
-  top: number;
-  left: number;
-  color: string;
-  fontSize: number;
-  fontWeight: number;
-  opacity: number;
-  rotation: number;
-  zIndex: number;
-}
 export default function CreatePage() {
   const { profile, isLoading } = useUserStore();
 
@@ -63,7 +51,6 @@ export default function CreatePage() {
   if (!profile) {
     return <Authenticate showDialog={true} />;
   }
-
 
   return (
     <section className="relative flex-1 w-full">
@@ -164,8 +151,8 @@ function CreateApp() {
       const scaledTextSets = textSets.map((textSet) => ({
         ...textSet,
         fontSize: textSet.fontSize * SCALE_FACTOR,
-        // Keep percentage-based properties (top, left) the same
-        // as they're relative to dimensions
+        // Ensure animation type is included
+        animation: textSet.animation || { type: "fadeInSlideUp" },
       }));
 
       await generateGif({
@@ -198,6 +185,9 @@ function CreateApp() {
         opacity: 1,
         rotation: 0,
         zIndex: 10,
+        animation: {
+          type: "fadeInSlideUp", // Default animation
+        },
       },
     ]);
   };
@@ -218,9 +208,26 @@ function CreateApp() {
   const removeTextSet = useCallback((id: number) => {
     setTextSets((prev) => prev.filter((set) => set.id !== id));
   }, []);
+  // Add a method to handle animation type change
+  const handleAnimationTypeChange = useCallback(
+    (id: number, animationType: AnimationType) => {
+      setTextSets((prev) =>
+        prev.map((textSet) =>
+          textSet.id === id
+            ? {
+                ...textSet,
+                animation: {
+                  type: animationType,
+                },
+              }
+            : textSet
+        )
+      );
+    },
+    []
+  );
 
   // duplicate textset
-
   const duplicateTextSet = (textSet: TextSet) => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
     setTextSets((prev) => [...prev, { ...textSet, id: newId }]);
@@ -419,6 +426,7 @@ function CreateApp() {
                         onTextChange={handleAttributeChange}
                         onDelete={removeTextSet}
                         onDuplicate={duplicateTextSet}
+                        onAnimationChange={handleAnimationTypeChange}
                       />
                     ))
                 ) : (

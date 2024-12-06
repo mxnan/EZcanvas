@@ -20,6 +20,8 @@ import {
   CommandList,
 } from "../ui/command";
 import { FONT_FAMILIES } from "@/constants/fonts";
+import { motion } from "framer-motion";
+import { AnimationType } from "@/types/animation";
 
 interface TextCustomizerProps {
   textSet: {
@@ -34,18 +36,39 @@ interface TextCustomizerProps {
     opacity: number;
     zIndex: number;
     fontWeight: number;
-    // animation: keyof typeof ANIMATION_PRESETS;
+    animation?: {
+      type: AnimationType;
+    };
   };
   onTextChange: (id: number, attribute: string, value: any) => void;
   onDelete: (id: number) => void;
   onDuplicate: (textSet: any) => void;
+  onAnimationChange?: (id: number, animationType: AnimationType) => void;
 }
+
+// Animation Preview Component
+// const AnimationPreview = ({ type }: { type: AnimationType }) => {
+//   const variants = ANIMATION_VARIANTS[type];
+
+//   return (
+//     <motion.div
+//       initial="initial"
+//       animate="animate"
+//       exit="exit"
+//       variants={variants}
+//       className="w-24 h-24 bg-primary/20 rounded-md flex items-center justify-center"
+//     >
+//       <span className="text-xs font-semibold">Preview</span>
+//     </motion.div>
+//   );
+// };
 
 const TextCustomizer = ({
   textSet,
   onTextChange,
   onDelete,
   onDuplicate,
+  onAnimationChange, // Add this
 }: TextCustomizerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const maxCharacters = 50;
@@ -178,6 +201,59 @@ const TextCustomizer = ({
                             ))}
                           </CommandList>
                         </Command>
+                      </PopoverContent>
+                    </Popover>
+
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="secondary"
+                          role="combobox"
+                          className="w-full justify-between"
+                        >
+                          {textSet.animation?.type || "Select Animation"}
+                          <CaretSortIcon className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[300px] p-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div
+                            className="flex flex-col items-center gap-2 cursor-pointer"
+                            onClick={() =>
+                              onAnimationChange?.(textSet.id, "fadeInSlideUp")
+                            }
+                          >
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{
+                                opacity: 1,
+                                y: -20,
+                                transition: { duration: 2 },
+                              }}
+                              className="w-24 h-24 bg-primary/20 rounded-md flex items-center justify-center"
+                            >
+                              <span>Fade & Up</span>
+                            </motion.div>
+                          </div>
+                          <div
+                            className="flex flex-col items-center gap-2 cursor-pointer"
+                            onClick={() =>
+                              onAnimationChange?.(textSet.id, "slideInFadeOut")
+                            }
+                          >
+                            <motion.div
+                              initial={{ y: -20, opacity: 1 }}
+                              animate={{
+                                y: 0,
+                                opacity: 0,
+                                transition: { duration: 2 },
+                              }}
+                              className="w-24 h-24 bg-primary/20 rounded-md flex items-center justify-center"
+                            >
+                              <span>Slide & Fade</span>
+                            </motion.div>
+                          </div>
+                        </div>
                       </PopoverContent>
                     </Popover>
                   </div>
