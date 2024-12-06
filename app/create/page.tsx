@@ -3,12 +3,9 @@
 
 "use client";
 import Authenticate from "@/components/_create/authenticate";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { createClient } from "@/utils/supabase/client";
-import "@/app/fonts.css";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -16,26 +13,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { removeBackground } from "@imgly/background-removal";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   ArrowRight,
+  Download,
   ImageDownIcon,
   Loader,
   MonitorSmartphone,
+  SquareX,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { animationVariants } from "@/constants/variants";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { useGifGenerator } from "@/hooks/use-gif-gen";
+import { useUserStore } from "@/store/use-user-store";
+import GenCount from "@/components/_create/gen-count";
+import PayDialog from "@/components/_create/pay-dialog";
+import { ImageProcessorResult } from "@/types/image";
+import { useImageProcessor } from "@/components/_create/image-processor";
+import { UnsplashDialog } from "@/components/_create/unsplash-dialog";
 import dynamic from "next/dynamic";
-
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
   {
@@ -43,9 +38,6 @@ const TextCustomizer = dynamic(
     loading: () => <div className="h-[200px] animate-pulse bg-secondary/30" />,
   }
 );
-type AnimationVariants = {
-  [key: string]: any;
-};
 
 // Text Set Types
 export interface TextSet {
@@ -60,37 +52,21 @@ export interface TextSet {
   opacity: number;
   rotation: number;
   zIndex: number;
-  animation: keyof AnimationVariants;
 }
-
 export default function CreatePage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const supabase = createClient();
+  const { profile, isLoading } = useUserStore();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      setLoading(false); // Set loading to false once user check completes
-    };
-    fetchUser();
-  }, [supabase]);
-
-  if (loading) {
-    return null; // Optionally, you could show a spinner or loading text here
+  if (isLoading) {
+    return <Authenticate showDialog={false} />;
   }
 
-  if (!user) {
-    return <Authenticate />;
+  if (!profile) {
+    return <Authenticate showDialog={true} />;
   }
-  ////////////////////////// supabase logic /////////////////////////////
+
 
   return (
-    <section className="relative flex-1 w-full ">
+    <section className="relative flex-1 w-full">
       <CreateApp />
     </section>
   );
@@ -99,13 +75,36 @@ export default function CreatePage() {
 // app/app/page.tsx or CreateApp.tsx
 
 function CreateApp() {
-  const [originalImage, setOriginalImage] = useState<string | null>(null); // Original uploaded image
-  const [backgroundImage, setBackgroundImage] = useState<string | null>(null); // Background-removed image
-  const [loading, setLoading] = useState(false); // Loading state for uploads
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [textSets, setTextSets] = useState<Array<any>>([]); // Text overlays
-  const [isUnsplash, setIsUnsplash] = useState(false); // Unsplash upload dialog toggle
-  const [unsplashUrl, setUnsplashUrl] = useState(""); // Unsplash image URL
+  const containerWidth = 450;
+  const containerHeight = 300;
+  const SCALE_FACTOR = 2;
+
+  // States
+
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [textSets, setTextSets] = useState<Array<TextSet>>([]);
+  const [isUnsplash, setIsUnsplash] = useState(false);
+  const [unsplashUrl, setUnsplashUrl] = useState("");
+  const [showPayDialog, setShowPayDialog] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState({
+    preview: { width: containerWidth, height: containerHeight },
+    final: {
+      width: containerWidth * SCALE_FACTOR,
+      height: containerHeight * SCALE_FACTOR,
+    },
+  });
+
+  const { isGenerating, generatedGif, generateGif, setGeneratedGif } =
+    useGifGenerator();
+
+  // Callbacks and handlers
+  const handleImageProcess = useCallback((result: ImageProcessorResult) => {
+    setOriginalImage(result.originalUrl);
+    setBackgroundImage(result.bgRemovedUrl);
+    setImageDimensions(result.dimensions);
+  }, []);
 
   // Reset all states to their initial values
   const resetEverything = () => {
@@ -115,7 +114,19 @@ function CreateApp() {
     setLoading(false);
     setIsUnsplash(false);
     setUnsplashUrl("");
+    setGeneratedGif(null); // Now this will work properly
   };
+
+  const { handleFileUpload, handleUnsplashUpload } = useImageProcessor({
+    onImageProcess: handleImageProcess,
+    onLoading: setLoading,
+    onShowPayDialog: () => setShowPayDialog(true),
+    checkCanGenerate: useUserStore.getState().checkCanGenerate,
+    decrementGenerations: useUserStore.getState().decrementGenerations,
+    containerWidth,
+    containerHeight,
+    scaleFactor: SCALE_FACTOR,
+  });
 
   // Handle file uploads from device
   const handleFileChange = async (
@@ -124,30 +135,13 @@ function CreateApp() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Reset everything before processing new image
     resetEverything();
-    setLoading(true);
+    await handleFileUpload(file);
 
-    try {
-      const result = await removeBackground(file);
-      const originalUrl = URL.createObjectURL(file);
-      const bgRemovedUrl = URL.createObjectURL(result);
-
-      setOriginalImage(originalUrl);
-      setBackgroundImage(bgRemovedUrl);
-      toast.success("Image uploaded and processed successfully!");
-    } catch (error) {
-      console.error("Error processing image:", error);
-      toast.error("Failed to process the image.");
-    } finally {
-      setLoading(false);
-      // Reset the file input value so the same file can be uploaded again
-      if (event.target) {
-        event.target.value = "";
-      }
+    if (event.target) {
+      event.target.value = "";
     }
   };
-
   // Handle Unsplash URL upload
   const handleUnsplashSubmit = async () => {
     if (!unsplashUrl) {
@@ -155,27 +149,35 @@ function CreateApp() {
       return;
     }
 
-    // Reset everything before processing new image
     resetEverything();
-    setLoading(true);
+    await handleUnsplashUpload(unsplashUrl);
+  };
+
+  const handleGifGeneration = async () => {
+    if (!originalImage || !backgroundImage || !textSets.length) {
+      toast.error("Please add an image and at least one text overlay");
+      return;
+    }
 
     try {
-      const response = await fetch(unsplashUrl);
-      const blob = await response.blob();
-      const file = new File([blob], "unsplash-image", { type: blob.type });
+      // Scale up text properties for final GIF
+      const scaledTextSets = textSets.map((textSet) => ({
+        ...textSet,
+        fontSize: textSet.fontSize * SCALE_FACTOR,
+        // Keep percentage-based properties (top, left) the same
+        // as they're relative to dimensions
+      }));
 
-      const result = await removeBackground(file);
-      const originalUrl = URL.createObjectURL(file);
-      const bgRemovedUrl = URL.createObjectURL(result);
-
-      setOriginalImage(originalUrl);
-      setBackgroundImage(bgRemovedUrl);
-      toast.success("Unsplash image processed successfully!");
+      await generateGif({
+        images: [originalImage, backgroundImage],
+        textData: scaledTextSets,
+        gifWidth: imageDimensions.final.width,
+        gifHeight: imageDimensions.final.height,
+        delay: 0,
+      });
     } catch (error) {
-      console.error("Error processing Unsplash image:", error);
-      toast.error("Failed to process the Unsplash image.");
-    } finally {
-      setLoading(false);
+      console.error("Error generating GIF:", error);
+      toast.error("Failed to generate GIF");
     }
   };
 
@@ -187,7 +189,7 @@ function CreateApp() {
       {
         id: newId,
         text: "Change this",
-        fontFamily: "Inter",
+        fontFamily: "Open Sans",
         top: 0,
         left: 0,
         color: "currentColor",
@@ -218,26 +220,37 @@ function CreateApp() {
   }, []);
 
   // duplicate textset
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const duplicateTextSet = (textSet: any) => {
+
+  const duplicateTextSet = (textSet: TextSet) => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
     setTextSets((prev) => [...prev, { ...textSet, id: newId }]);
   };
 
+  // Download GIF and reset states
+  const downloadGif = () => {
+    if (!generatedGif) return;
+    const link = document.createElement("a");
+    link.href = generatedGif;
+    link.download = "mxnan-image-text.gif";
+    link.click();
+    toast.success("GIF downloaded successfully!");
+  };
+
   return (
     <div className="relative pt-20 flex-1 w-full">
-      <div className="min-h-screen px-4 lg:px-8 space-y-6">
+      <div className="min-h-screen px-4 lg:px-8 space-y-6 pb-24">
         {/* Upload Section */}
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
-          <h1 className="text-4xl text-start font-mono font-extrabold">
+          <h1 className="text-4xl text-start  font-extrabold">
             Create Your GIF
           </h1>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant={"default"}
-                disabled={loading}
-                className="font-mono font-extrabold"
+            <DropdownMenuTrigger asChild disabled={loading}>
+              <button
+                className={cn(
+                  " font-extrabold",
+                  buttonVariants({ variant: "default" })
+                )}
               >
                 {loading ? (
                   <>
@@ -246,12 +259,11 @@ function CreateApp() {
                   </>
                 ) : (
                   <>
-                    {" "}
-                    Upload Image{" "}
-                    <ArrowRight className="-rotate-45  w-5 h-5 stroke-[3px]" />
+                    Upload Image
+                    <ArrowRight className="-rotate-45 w-5 h-5 stroke-[3px]" />
                   </>
                 )}
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               side="bottom"
@@ -260,7 +272,7 @@ function CreateApp() {
             >
               <DropdownMenuItem asChild>
                 <button
-                  className="font-mono text-lg cursor-pointer font-extrabold"
+                  className=" text-lg cursor-pointer font-extrabold"
                   onClick={() => setIsUnsplash(true)}
                 >
                   <ImageDownIcon className="h-10 w-10 stroke-[2px]" /> from
@@ -269,7 +281,7 @@ function CreateApp() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <button
-                  className="font-mono text-lg cursor-pointer font-extrabold"
+                  className=" text-lg cursor-pointer font-extrabold"
                   onClick={() => document.getElementById("fileInput")?.click()}
                 >
                   <MonitorSmartphone className="h-10 w-10 stroke-[2px]" /> from
@@ -278,7 +290,7 @@ function CreateApp() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
+          <GenCount />
           <input
             id="fileInput"
             type="file"
@@ -287,52 +299,40 @@ function CreateApp() {
             onChange={handleFileChange}
           />
 
-          {isUnsplash && (
-            <AlertDialog defaultOpen>
-              <AlertDialogTrigger>
-                <> </>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-4xl ">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Enter Unsplash URL</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Provide a direct Unsplash image link.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <Input
-                  value={unsplashUrl}
-                  onChange={(e) => setUnsplashUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/.."
-                />
-                <div className="flex justify-end gap-2 mt-4">
-                  <Button variant="default" onClick={handleUnsplashSubmit}>
-                    Upload
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      setIsUnsplash(false);
-                      setUnsplashUrl("");
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
+          <UnsplashDialog
+            isOpen={isUnsplash}
+            onClose={() => {
+              setIsUnsplash(false);
+              setUnsplashUrl("");
+            }}
+            onSubmit={handleUnsplashSubmit}
+            url={unsplashUrl}
+            onUrlChange={setUnsplashUrl}
+          />
         </div>
 
         {/* Image Preview Section */}
-        <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl ">
+        <div className="relative w-full h-auto flex flex-col xl:flex-row gap-8 p-3 border rounded-2xl">
           {originalImage && backgroundImage ? (
-            <div className="relative h-[24rem] lg:h-[24rem] aspect-video backdrop-blur-xl lg:border-y-2 overflow-hidden">
-              <div className="flex-1">
+            <div
+              className="relative mx-auto xl:mx-8"
+              style={{
+                width: imageDimensions.preview.width,
+                height: imageDimensions.preview.height,
+                maxWidth: "100%",
+                aspectRatio: `${imageDimensions.preview.width} / ${imageDimensions.preview.height}`,
+              }}
+            >
+              <div className="flex-1 relative w-full h-full">
                 {/* Original Image */}
                 <img
                   src={originalImage}
                   alt="Original"
-                  className="absolute inset-0 object-contain w-full h-full z-0"
+                  style={{
+                    width: imageDimensions.preview.width,
+                    height: imageDimensions.preview.height,
+                  }}
+                  className="absolute inset-0 object-contain z-0"
                 />
                 {/* Text Overlays */}
                 {textSets.map((textSet) => (
@@ -342,32 +342,29 @@ function CreateApp() {
                       position: "absolute",
                       top: `${textSet.top}%`,
                       left: `${textSet.left}%`,
+                      transform: `translate(-50%, -50%)`,
+                      color: textSet.color,
+                      fontSize: `${textSet.fontSize}px`,
+                      fontWeight: textSet.fontWeight,
+                      fontFamily: textSet.fontFamily,
                       zIndex: textSet.zIndex,
-                      transform: `translate(-50%, -50%) rotate(${textSet.rotation}deg)`,
+                      opacity: textSet.opacity,
+                      rotate: `${textSet.rotation}deg`,
                     }}
                     className="whitespace-nowrap"
                   >
-                    <motion.p
-                    
-                      style={{
-                        color: textSet.color,
-                        fontSize: `${textSet.fontSize}px`,
-                        fontWeight: textSet.fontWeight,
-                        fontFamily: textSet.fontFamily,
-                        opacity: textSet.opacity,
-                      }}
-                      initial={animationVariants[textSet.animation]?.initial}
-                      animate={animationVariants[textSet.animation]?.animate}
-                    >
-                      {textSet.text}
-                    </motion.p>
+                    {textSet.text}
                   </div>
                 ))}
                 {/* Background-Removed Image */}
                 <img
                   src={backgroundImage}
                   alt="Background Removed"
-                  className="absolute inset-0 object-contain w-full h-full z-20"
+                  style={{
+                    width: imageDimensions.preview.width,
+                    height: imageDimensions.preview.height,
+                  }}
+                  className="absolute inset-0 object-contain z-20"
                 />
               </div>
             </div>
@@ -380,10 +377,35 @@ function CreateApp() {
           {/* Text Customization Section */}
           {originalImage && backgroundImage && (
             <div className="flex flex-col w-full">
-              <div className="flex flex-col sm:flex-row items-center max-lg:justify-center gap-6 mb-4">
+              <div className="flex flex-col sm:flex-row items-center max-xl:justify-center gap-6 mb-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
-                <Button variant="destructive" onClick={resetEverything}>
+                <Button
+                  onClick={() => {
+                    setTextSets([]);
+                    toast.success("Text overlays cleared");
+                  }}
+                >
+                  Reset textsets
+                </Button>
+                {/* <Button variant="destructive" onClick={resetEverything}>
                   Reset Everything
+                </Button> */}
+                <Button
+                  onClick={handleGifGeneration}
+                  disabled={Boolean(
+                    isGenerating || !textSets.length || generatedGif
+                  )}
+                  className="gap-2"
+                  variant={"destructive"}
+                >
+                  {isGenerating ? (
+                    <>
+                      Generating GIF
+                      <Loader className="h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    "Generate GIF"
+                  )}
                 </Button>
               </div>
               <ScrollArea className="relative h-[40rem] lg:h-[35.7rem] space-y-3 border p-3 rounded-2xl">
@@ -410,7 +432,47 @@ function CreateApp() {
             </div>
           )}
         </div>
+
+        {generatedGif && (
+          <div className="mt-6 border rounded-lg p-4">
+            <h2 className="text-xl font-bold mb-4">Generated GIF Preview</h2>
+            <div className="relative aspect-video h-96 w-full overflow-hidden rounded-lg">
+              <Image
+                src={generatedGif}
+                alt="Generated GIF"
+                fill
+                priority
+                unoptimized
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div className="mt-6 flex max-sm:flex-col gap-4 justify-center">
+              <Button onClick={downloadGif} className="gap-2">
+                <Download className="h-4 w-4" />
+                Download GIF
+              </Button>
+              <Button
+                variant={"destructive"}
+                onClick={() => {
+                  setGeneratedGif(null);
+                }}
+                className="gap-2"
+              >
+                <SquareX /> Modify this further
+              </Button>
+            </div>
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Note: If you need to modify this GIF, click &quot;Modify this
+              further&quot; to return to editing and generate new gif.
+              Otherwise, upload a new image to start fresh.
+            </p>
+          </div>
+        )}
       </div>
+      <PayDialog
+        isOpen={showPayDialog}
+        onClose={() => setShowPayDialog(false)}
+      />
     </div>
   );
 }

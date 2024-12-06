@@ -19,9 +19,7 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import { ALL_FONTS } from "@/constants/fonts";
-import { animationVariants } from "@/constants/variants";
-
+import { FONT_FAMILIES } from "@/constants/fonts";
 
 interface TextCustomizerProps {
   textSet: {
@@ -36,7 +34,7 @@ interface TextCustomizerProps {
     opacity: number;
     zIndex: number;
     fontWeight: number;
-    animation: keyof typeof animationVariants;
+    // animation: keyof typeof ANIMATION_PRESETS;
   };
   onTextChange: (id: number, attribute: string, value: any) => void;
   onDelete: (id: number) => void;
@@ -121,6 +119,68 @@ const TextCustomizer = ({
                   </div>
                 </div>
                 <div className="py-6 flex flex-col gap-8">
+                  <div className="flex gap-4">
+                    <Popover>
+                      <div className="flex flex-col items-start justify-start">
+                        <Label>Font Family</Label>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="secondary"
+                            role="combobox"
+                            className={cn("w-[240px] justify-between mt-3 p-2")}
+                          >
+                            {textSet.fontFamily
+                              ? textSet.fontFamily
+                              : "Select font family"}
+                            <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                      </div>
+                      <PopoverContent sideOffset={8} className="w-full p-2">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search font family..."
+                            className="h-9"
+                          />
+                          <CommandList>
+                            <CommandEmpty>No font family found.</CommandEmpty>
+                            {FONT_FAMILIES.map((category) => (
+                              <CommandGroup
+                                key={category.name}
+                                heading={category.name}
+                              >
+                                {category.fonts.map((font) => (
+                                  <CommandItem
+                                    value={font}
+                                    key={font}
+                                    onSelect={() =>
+                                      onTextChange(
+                                        textSet.id,
+                                        "fontFamily",
+                                        font
+                                      )
+                                    }
+                                    className="hover:cursor-pointer"
+                                    style={{ fontFamily: font }}
+                                  >
+                                    {font}
+                                    <CheckIcon
+                                      className={cn(
+                                        "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
+                                        font === textSet.fontFamily
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            ))}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   {/* Font Weight Slider */}
                   <div className="flex flex-col w-full  gap-2">
                     <Label>Font Weight</Label>
@@ -188,114 +248,11 @@ const TextCustomizer = ({
                     }
                   }}
                   min={4}
-                  max={500}
-                  step={4}
+                  max={200}
+                  step={2}
                   className="mt-2 text-xs font-semibold"
                 />
               </div>
-            </div>
-            <div className="flex gap-4">
-              <Popover>
-                <div className="flex flex-col items-start justify-start my-8">
-                  <Label>Font Family</Label>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="secondary"
-                      role="combobox"
-                      className={cn("w-[240px] justify-between mt-3 p-2")}
-                    >
-                      {textSet.fontFamily
-                        ? textSet.fontFamily
-                        : "Select font family"}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                </div>
-                <PopoverContent sideOffset={8} className="w-full p-2">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search font family..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>No font family found.</CommandEmpty>
-                      <CommandGroup heading="Available Fonts">
-                        {ALL_FONTS.map((font) => (
-                          <CommandItem
-                            value={font}
-                            key={font}
-                            onSelect={() =>
-                              onTextChange(textSet.id, "fontFamily", font)
-                            }
-                            className="hover:cursor-pointer"
-                            style={{ fontFamily: font }}
-                          >
-                            {font}
-                            <CheckIcon
-                              className={cn(
-                                "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
-                                font === textSet.fontFamily
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <Popover>
-                <div className="flex flex-col items-start justify-start my-8">
-                  <Label>Animation Variant</Label>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="secondary"
-                      role="combobox"
-                      className={cn("w-[240px] justify-between mt-3 p-2")}
-                    >
-                      {textSet.animation
-                        ? textSet.animation
-                        : "Select animation"}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                </div>
-                <PopoverContent sideOffset={8} className="w-full p-2">
-                  <Command>
-                    <CommandInput
-                      placeholder="Search animation..."
-                      className="h-9"
-                    />
-                    <CommandList>
-                      <CommandEmpty>No animation found.</CommandEmpty>
-                      <CommandGroup heading="Available Animations">
-                        {Object.keys(animationVariants).map((variant) => (
-                          <CommandItem
-                            value={variant}
-                            key={variant}
-                            onSelect={() =>
-                              onTextChange(textSet.id, "animation", variant)
-                            }
-                            className="hover:cursor-pointer"
-                          >
-                            {variant}
-                            <CheckIcon
-                              className={cn(
-                                "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
-                                variant === textSet.animation
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
             </div>
           </div>
         </div>
@@ -314,7 +271,7 @@ const TextCustomizer = ({
                   onTextChange(textSet.id, "left", value);
                 }
               }}
-              min={-100}
+              min={0}
               max={100}
               step={1}
               className="mt-2 text-xs font-semibold"
@@ -332,7 +289,7 @@ const TextCustomizer = ({
                   onTextChange(textSet.id, "top", value);
                 }
               }}
-              min={-100}
+              min={0}
               max={100}
               step={1}
               className="mt-2 text-xs font-semibold"
