@@ -19,8 +19,7 @@ import {
   CommandItem,
   CommandList,
 } from "../ui/command";
-import { ALL_FONTS } from "@/constants/fonts";
-
+import { FONT_FAMILIES } from "@/constants/fonts";
 
 interface TextCustomizerProps {
   textSet: {
@@ -145,29 +144,38 @@ const TextCustomizer = ({
                           />
                           <CommandList>
                             <CommandEmpty>No font family found.</CommandEmpty>
-                            <CommandGroup heading="Available Fonts">
-                              {ALL_FONTS.map((font) => (
-                                <CommandItem
-                                  value={font}
-                                  key={font}
-                                  onSelect={() =>
-                                    onTextChange(textSet.id, "fontFamily", font)
-                                  }
-                                  className="hover:cursor-pointer"
-                                  style={{ fontFamily: font }}
-                                >
-                                  {font}
-                                  <CheckIcon
-                                    className={cn(
-                                      "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
-                                      font === textSet.fontFamily
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
+                            {FONT_FAMILIES.map((category) => (
+                              <CommandGroup
+                                key={category.name}
+                                heading={category.name}
+                              >
+                                {category.fonts.map((font) => (
+                                  <CommandItem
+                                    value={font}
+                                    key={font}
+                                    onSelect={() =>
+                                      onTextChange(
+                                        textSet.id,
+                                        "fontFamily",
+                                        font
+                                      )
+                                    }
+                                    className="hover:cursor-pointer"
+                                    style={{ fontFamily: font }}
+                                  >
+                                    {font}
+                                    <CheckIcon
+                                      className={cn(
+                                        "ml-auto h-4 w-4 transition-opacity ease-in-out duration-300",
+                                        font === textSet.fontFamily
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            ))}
                           </CommandList>
                         </Command>
                       </PopoverContent>

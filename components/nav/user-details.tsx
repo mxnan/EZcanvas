@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
@@ -15,7 +16,6 @@ const UserDetails = () => {
             src={profile.avatar_url}
             alt="avatar"
             fill
-            priority
             sizes="(100vw, 100vh)"
             className="object-cover"
           />

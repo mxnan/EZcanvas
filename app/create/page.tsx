@@ -5,8 +5,6 @@
 import Authenticate from "@/components/_create/authenticate";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-import "@/app/fonts.css";
 import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -23,20 +21,16 @@ import {
   MonitorSmartphone,
   SquareX,
 } from "lucide-react";
-
-import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-
 import Image from "next/image";
 import { useGifGenerator } from "@/hooks/use-gif-gen";
 import { useUserStore } from "@/store/use-user-store";
 import GenCount from "@/components/_create/gen-count";
-// import { useGifGenerator } from "@/hooks/use-gif";
 import PayDialog from "@/components/_create/pay-dialog";
 import { ImageProcessorResult } from "@/types/image";
 import { useImageProcessor } from "@/components/_create/image-processor";
 import { UnsplashDialog } from "@/components/_create/unsplash-dialog";
-
+import dynamic from "next/dynamic";
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
   {
@@ -59,7 +53,6 @@ export interface TextSet {
   rotation: number;
   zIndex: number;
 }
-
 export default function CreatePage() {
   const { profile, isLoading } = useUserStore();
 
@@ -70,6 +63,7 @@ export default function CreatePage() {
   if (!profile) {
     return <Authenticate showDialog={true} />;
   }
+
 
   return (
     <section className="relative flex-1 w-full">
@@ -195,7 +189,7 @@ function CreateApp() {
       {
         id: newId,
         text: "Change this",
-        fontFamily: "Inter",
+        fontFamily: "Open Sans",
         top: 0,
         left: 0,
         color: "currentColor",
@@ -318,10 +312,10 @@ function CreateApp() {
         </div>
 
         {/* Image Preview Section */}
-        <div className="relative w-full h-auto flex flex-col lg:flex-row gap-8 p-3 border rounded-2xl">
+        <div className="relative w-full h-auto flex flex-col xl:flex-row gap-8 p-3 border rounded-2xl">
           {originalImage && backgroundImage ? (
             <div
-              className="relative mx-auto lg:mx-8"
+              className="relative mx-auto xl:mx-8"
               style={{
                 width: imageDimensions.preview.width,
                 height: imageDimensions.preview.height,
@@ -383,7 +377,7 @@ function CreateApp() {
           {/* Text Customization Section */}
           {originalImage && backgroundImage && (
             <div className="flex flex-col w-full">
-              <div className="flex flex-col sm:flex-row items-center max-lg:justify-center gap-6 mb-4">
+              <div className="flex flex-col sm:flex-row items-center max-xl:justify-center gap-6 mb-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
                 <Button
                   onClick={() => {

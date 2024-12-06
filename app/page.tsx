@@ -17,7 +17,6 @@ export default function Home() {
             }
             alt="logout"
             fill
-            priority
             sizes="(100vw, 100vh)"
             className="object-cover aspect-mobile h-full w-full"
           />
