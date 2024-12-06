@@ -30,16 +30,16 @@ export default function Authenticate({ showDialog = false }: AuthenticateProps) 
   return (
     <div className="relative w-full min-h-screen">
       <AlertDialog defaultOpen>
-        <AlertDialogContent className="sm:max-w-[425px]">
+        <AlertDialogContent className="sm:max-w-[600px] ">
           <AlertDialogHeader>
-            <AlertDialogTitle>Authenticate with Google</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-center mb-4">Authenticate with Google</AlertDialogTitle>
+            <AlertDialogDescription className="text-center ">
               To continue, please sign in with your Google account.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="grid gap-4 py-4">
             <Button
-              variant="outline"
+              variant="default"
               className="w-full gap-2"
               onClick={() => signInWithGoogle()}
             >
