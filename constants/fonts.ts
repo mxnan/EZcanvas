@@ -1,9 +1,8 @@
-import { Chakra_Petch, Open_Sans } from "next/font/google";
+import {  Open_Sans, Source_Code_Pro } from "next/font/google";
 
 // font for root layout
-export const fontsans = Chakra_Petch({
+export const fontsans = Source_Code_Pro({
   subsets: ["latin"],
-  weight: ["400", "700"],
   variable: "--font-sans",
   display: "swap",
 });
