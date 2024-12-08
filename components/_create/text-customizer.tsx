@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
@@ -21,47 +22,16 @@ import {
 } from "../ui/command";
 import { FONT_FAMILIES } from "@/constants/fonts";
 import { motion } from "framer-motion";
-import { AnimationType } from "@/types/animation";
+import { ANIMATION_REGISTRY } from "@/registry/anim-reg";
+import { TextSet } from "@/types/text";
 
 interface TextCustomizerProps {
-  textSet: {
-    id: number;
-    text: string;
-    color: string;
-    fontSize: number;
-    fontFamily: string;
-    top: number;
-    left: number;
-    rotation: number;
-    opacity: number;
-    zIndex: number;
-    fontWeight: number;
-    animation?: {
-      type: AnimationType;
-    };
-  };
+  textSet: TextSet;
   onTextChange: (id: number, attribute: string, value: any) => void;
   onDelete: (id: number) => void;
-  onDuplicate: (textSet: any) => void;
-  onAnimationChange?: (id: number, animationType: AnimationType) => void;
+  onDuplicate: (textSet: TextSet) => void;
+  onAnimationChange?: (id: number, animationType: string) => void;
 }
-
-// Animation Preview Component
-// const AnimationPreview = ({ type }: { type: AnimationType }) => {
-//   const variants = ANIMATION_VARIANTS[type];
-
-//   return (
-//     <motion.div
-//       initial="initial"
-//       animate="animate"
-//       exit="exit"
-//       variants={variants}
-//       className="w-24 h-24 bg-primary/20 rounded-md flex items-center justify-center"
-//     >
-//       <span className="text-xs font-semibold">Preview</span>
-//     </motion.div>
-//   );
-// };
 
 const TextCustomizer = ({
   textSet,
@@ -142,7 +112,7 @@ const TextCustomizer = ({
                   </div>
                 </div>
                 <div className="py-6 flex flex-col gap-8">
-                  <div className="flex gap-4">
+                  <div className="flex max-lg:flex-col gap-4">
                     <Popover>
                       <div className="flex flex-col items-start justify-start">
                         <Label>Font Family</Label>
@@ -205,55 +175,109 @@ const TextCustomizer = ({
                     </Popover>
 
                     <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="secondary"
-                          role="combobox"
-                          className="w-full justify-between"
-                        >
-                          {textSet.animation?.type || "Select Animation"}
-                          <CaretSortIcon className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[300px] p-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div
-                            className="flex flex-col items-center gap-2 cursor-pointer"
-                            onClick={() =>
-                              onAnimationChange?.(textSet.id, "fadeInSlideUp")
-                            }
+                      <div className="flex flex-col items-start justify-start">
+                        <Label>Animation Style</Label>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="secondary"
+                            role="combobox"
+                            className={cn("w-[240px] justify-between mt-3")}
                           >
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              animate={{
-                                opacity: 1,
-                                y: -20,
-                                transition: { duration: 2 },
-                              }}
-                              className="w-24 h-24 bg-primary/20 rounded-md flex items-center justify-center"
-                            >
-                              <span>Fade & Up</span>
-                            </motion.div>
-                          </div>
-                          <div
-                            className="flex flex-col items-center gap-2 cursor-pointer"
-                            onClick={() =>
-                              onAnimationChange?.(textSet.id, "slideInFadeOut")
-                            }
-                          >
-                            <motion.div
-                              initial={{ y: -20, opacity: 1 }}
-                              animate={{
-                                y: 0,
-                                opacity: 0,
-                                transition: { duration: 2 },
-                              }}
-                              className="w-24 h-24 bg-primary/20 rounded-md flex items-center justify-center"
-                            >
-                              <span>Slide & Fade</span>
-                            </motion.div>
-                          </div>
-                        </div>
+                            {textSet.animation?.type
+                              ? ANIMATION_REGISTRY[textSet.animation.type]
+                                  ?.description
+                              : "Select animation"}
+                            <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                      </div>
+                      <PopoverContent className="w-[400px] p-4" align="start">
+                        <Command>
+                          <CommandInput placeholder="Search animations..." />
+                          <CommandList>
+                            <CommandEmpty>No animations found.</CommandEmpty>
+                            {Object.entries(ANIMATION_REGISTRY)
+                              .reduce((acc, [_, config]) => {
+                                if (!acc.includes(config.category)) {
+                                  acc.push(config.category);
+                                }
+                                return acc;
+                              }, [] as string[])
+                              .map((category) => (
+                                <CommandGroup
+                                  key={category}
+                                  heading={
+                                    category.charAt(0).toUpperCase() +
+                                    category.slice(1)
+                                  }
+                                >
+                                  {Object.entries(ANIMATION_REGISTRY)
+                                    .filter(
+                                      ([_, config]) =>
+                                        config.category === category
+                                    )
+                                    .map(([key, config]) => (
+                                      <CommandItem
+                                        key={key}
+                                        value={key}
+                                        onSelect={() =>
+                                          onAnimationChange?.(textSet.id, key)
+                                        }
+                                        className="flex items-center gap-4 p-2"
+                                      >
+                                        <div className="flex-1">
+                                          <div className="font-medium">
+                                            {config.description}
+                                          </div>
+                                          <div className="text-xs text-muted-foreground">
+                                            Duration: {config.duration}ms
+                                          </div>
+                                        </div>
+                                        <div className="w-24">
+                                          <motion.div
+                                            className="h-12 bg-secondary/20 rounded-md flex items-center justify-center"
+                                            initial={Object.fromEntries(
+                                              Object.entries(
+                                                config.properties
+                                              ).map(([key, [initial]]) => [
+                                                key,
+                                                initial,
+                                              ])
+                                            )}
+                                            animate={Object.fromEntries(
+                                              Object.entries(
+                                                config.properties
+                                              ).map(([key, [, final]]) => [
+                                                key,
+                                                final,
+                                              ])
+                                            )}
+                                            transition={{
+                                              duration: config.duration / 60,
+                                              ease: config.easing,
+                                              repeat: Infinity,
+                                              repeatDelay: 1,
+                                            }}
+                                          >
+                                            <span className="text-xs">
+                                              Preview
+                                            </span>
+                                          </motion.div>
+                                        </div>
+                                        <CheckIcon
+                                          className={cn(
+                                            "ml-auto h-4 w-4",
+                                            textSet.animation?.type === key
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                              ))}
+                          </CommandList>
+                        </Command>
                       </PopoverContent>
                     </Popover>
                   </div>

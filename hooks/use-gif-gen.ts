@@ -3,14 +3,13 @@ import { useState, useCallback } from "react";
 import { encode } from "modern-gif";
 
 import { toast } from "sonner";
-import {
-  ANIMATION_VARIANTS,
-  AnimationType,
-  AnimationKeyframe,
-  ANIMATION_TIMING,
-} from "@/types/animation";
+
 import { TextSet } from "@/types/text";
-import { calculateAnimationState } from "@/types/animation";
+import {
+  AnimationConfig,
+  EASING_FUNCTIONS,
+  ANIMATION_REGISTRY,
+} from "@/registry/anim-reg";
 
 interface GifOptions {
   images: string[];
@@ -20,37 +19,72 @@ interface GifOptions {
   delay?: number;
 }
 
-// const renderText = (
-//   ctx: CanvasRenderingContext2D,
-//   textSet: TextSet,
-//   canvas: HTMLCanvasElement
-// ) => {
-//   ctx.save();
-
-//   // Calculate center position (percentages remain the same)
-//   const x = canvas.width * (textSet.left / 100);
-//   const y = canvas.height * (textSet.top / 100);
-
-//   // Text properties are already scaled up in handleGifGeneration
-//   ctx.font = `${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
-//   ctx.fillStyle = textSet.color;
-//   ctx.textAlign = "center";
-//   ctx.textBaseline = "middle";
-//   ctx.globalAlpha = textSet.opacity;
-
-//   // Apply transformation for rotation
-//   ctx.translate(x, y);
-//   ctx.rotate((textSet.rotation * Math.PI) / 180);
-
-//   // Draw text at origin (0, 0) since we've translated the context
-//   ctx.fillText(textSet.text, 0, 0);
-
-//   ctx.restore();
-// };
-
 export function useGifGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedGif, setGeneratedGif] = useState<string | null>(null);
+
+  const calculateAnimationProgress = (
+    frameIndex: number,
+    totalFrames: number,
+    config: AnimationConfig
+  ) => {
+    const progress = frameIndex / totalFrames;
+    const easingFunction = EASING_FUNCTIONS[config.easing];
+    return easingFunction(progress);
+  };
+
+  const applyAnimationProperties = (
+    ctx: CanvasRenderingContext2D,
+    textSet: TextSet,
+    frameIndex: number,
+    TOTAL_FRAMES: number
+  ) => {
+    const animationType = textSet.animation?.type || "fadeIn";
+    const config = ANIMATION_REGISTRY[animationType];
+
+    if (!config) return;
+
+    const progress = calculateAnimationProgress(
+      frameIndex,
+      TOTAL_FRAMES,
+      config
+    );
+    const properties = config.properties;
+
+    // Calculate all transformations first
+    let opacity = textSet.opacity;
+    let scaleValue = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let rotationValue = textSet.rotation;
+
+    Object.entries(properties).forEach(([key, [start, end]]) => {
+      const value = start + (end - start) * progress;
+
+      switch (key) {
+        case "opacity":
+          opacity *= value;
+          break;
+        case "scale":
+          scaleValue = value;
+          break;
+        case "y":
+          translateY = value;
+          break;
+        case "x":
+          translateX = value;
+          break;
+        case "rotation":
+          rotationValue += value;
+          break;
+      }
+    });
+    // Apply transformations in the correct order
+    ctx.globalAlpha = opacity;
+    ctx.translate(translateX, translateY);
+    ctx.scale(scaleValue, scaleValue);
+    ctx.rotate((rotationValue * Math.PI) / 180);
+  };
 
   const generateGif = useCallback(async (options: GifOptions) => {
     setIsGenerating(true);
@@ -79,7 +113,7 @@ export function useGifGenerator() {
       // Generate animation frames
       const frames: { data: Uint8ClampedArray; delay: number }[] = [];
       const TOTAL_FRAMES = 60; // Total frames for the animation
-      const FRAME_DELAY = 50; // 20fps
+      const FRAME_DELAY = 40; // 20fps
 
       // Create frames for the animation sequence
       for (let frameIndex = 0; frameIndex < TOTAL_FRAMES; frameIndex++) {
@@ -94,17 +128,17 @@ export function useGifGenerator() {
 
         // Draw each text with animation
         sortedTextData.forEach((textSet) => {
-          const animState = calculateAnimationState(
-            textSet.animation?.type || "fadeInSlideUp",
-            frameIndex
-          );
+          ctx.save(); // Save context state before transformations
 
-          ctx.save();
-          ctx.globalAlpha = animState.opacity || textSet.opacity;
-
-          // Calculate position with animation offset
+          // Calculate base position
           const x = canvas.width * (textSet.left / 100);
-          const y = canvas.height * (textSet.top / 100) + (animState.y || 0);
+          const y = canvas.height * (textSet.top / 100);
+
+          // Move to text position first
+          ctx.translate(x, y);
+
+          // Apply animation transformations
+          applyAnimationProperties(ctx, textSet, frameIndex, TOTAL_FRAMES);
 
           // Set text properties
           ctx.font = `${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
@@ -112,13 +146,10 @@ export function useGifGenerator() {
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
 
-          // Apply transformations
-          ctx.translate(x, y);
-          ctx.rotate((textSet.rotation * Math.PI) / 180);
-
-          // Draw text
+          // Draw the text at origin (0,0) since we've already translated
           ctx.fillText(textSet.text, 0, 0);
-          ctx.restore();
+
+          ctx.restore(); // Restore context state after drawing
         });
 
         // Draw background image if exists
@@ -138,6 +169,8 @@ export function useGifGenerator() {
       const output = await encode({
         width: canvas.width,
         height: canvas.height,
+        maxColors: 255,
+        format: "blob",
         frames,
         // quality: 10,
       });
@@ -153,6 +186,7 @@ export function useGifGenerator() {
     } finally {
       setIsGenerating(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { generateGif, isGenerating, generatedGif, setGeneratedGif };

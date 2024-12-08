@@ -1,4 +1,4 @@
-import { AnimationType } from './animation';
+
 
 export interface TextSet {
   id: number;
@@ -13,6 +13,6 @@ export interface TextSet {
   rotation: number;
   zIndex: number;
   animation?: {
-    type: AnimationType;
+    type: string;
   };
 }
