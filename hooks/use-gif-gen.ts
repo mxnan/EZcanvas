@@ -4,65 +4,92 @@ import { encode } from "modern-gif";
 
 import { toast } from "sonner";
 
+import { TextSet } from "@/types/text";
+import {
+  AnimationConfig,
+  EASING_FUNCTIONS,
+  ANIMATION_REGISTRY,
+} from "@/registry/anim-reg";
+
 interface GifOptions {
   images: string[];
   textData: TextSet[];
-  gifWidth?: number;
-  gifHeight?: number;
-  delay?: number;
+  previewWidth: number;
+  previewHeight: number;
 }
-
-interface TextSet {
-  id: number;
-  text: string;
-  fontFamily: string;
-  top: number;
-  left: number;
-  color: string;
-  fontSize: number;
-  fontWeight: number;
-  opacity: number;
-  rotation: number;
-  zIndex: number;
-}
-
-const renderText = (
-  ctx: CanvasRenderingContext2D,
-  textSet: TextSet,
-  canvas: HTMLCanvasElement
-) => {
-  ctx.save();
-
-  // Calculate center position (percentages remain the same)
-  const x = canvas.width * (textSet.left / 100);
-  const y = canvas.height * (textSet.top / 100);
-
-  // Text properties are already scaled up in handleGifGeneration
-  ctx.font = `${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
-  ctx.fillStyle = textSet.color;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.globalAlpha = textSet.opacity;
-
-  // Apply transformation for rotation
-  ctx.translate(x, y);
-  ctx.rotate((textSet.rotation * Math.PI) / 180);
-
-  // Draw text at origin (0, 0) since we've translated the context
-  ctx.fillText(textSet.text, 0, 0);
-
-  ctx.restore();
-};
 
 export function useGifGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedGif, setGeneratedGif] = useState<string | null>(null);
 
+  const calculateAnimationProgress = (
+    frameIndex: number,
+    totalFrames: number,
+    config: AnimationConfig
+  ) => {
+    const progress = frameIndex / totalFrames;
+    const easingFunction = EASING_FUNCTIONS[config.easing];
+    return easingFunction(progress);
+  };
+
+  const applyAnimationProperties = (
+    ctx: CanvasRenderingContext2D,
+    textSet: TextSet,
+    frameIndex: number,
+    TOTAL_FRAMES: number
+  ) => {
+    const animationType = textSet.animation?.type || "fadeIn";
+    const config = ANIMATION_REGISTRY[animationType];
+
+    if (!config) return;
+
+    const progress = calculateAnimationProgress(
+      frameIndex,
+      TOTAL_FRAMES,
+      config
+    );
+    const properties = config.properties;
+
+    // Calculate all transformations first
+    let opacity = textSet.opacity;
+    let scaleValue = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let rotationValue = textSet.rotation;
+
+    Object.entries(properties).forEach(([key, [start, end]]) => {
+      const value = start + (end - start) * progress;
+
+      switch (key) {
+        case "opacity":
+          opacity *= value;
+          break;
+        case "scale":
+          scaleValue = value;
+          break;
+        case "y":
+          translateY = value;
+          break;
+        case "x":
+          translateX = value;
+          break;
+        case "rotation":
+          rotationValue += value;
+          break;
+      }
+    });
+    // Apply transformations in the correct order
+    ctx.globalAlpha = opacity;
+    ctx.translate(translateX, translateY);
+    ctx.scale(scaleValue, scaleValue);
+    ctx.rotate((rotationValue * Math.PI) / 180);
+  };
+
   const generateGif = useCallback(async (options: GifOptions) => {
     setIsGenerating(true);
 
     try {
-      // Load images with proper cross-origin handling
+      // Load images at full resolution
       const [baseImage, bgRemovedImage] = await Promise.all(
         options.images.map(async (imgUrl) => {
           const img = new Image();
@@ -76,57 +103,82 @@ export function useGifGenerator() {
         })
       );
 
-      // Create canvas with proper dimensions
+      // Use original image dimensions
       const canvas = document.createElement("canvas");
-      canvas.width = options.gifWidth || baseImage.naturalWidth;
-      canvas.height = options.gifHeight || baseImage.naturalHeight;
+      canvas.width = baseImage.naturalWidth;
+      canvas.height = baseImage.naturalHeight;
 
       const ctx = canvas.getContext("2d", {
         willReadFrequently: true,
-        alpha: true, // Enable alpha channel
+        alpha: true,
       });
-
       if (!ctx) throw new Error("Failed to get canvas context");
 
-      // Clear canvas and draw base image
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+      // Scale text properties relative to original dimensions
+      const scaleTextProperties = (textSet: TextSet) => {
+        const scaleFactor = baseImage.naturalWidth / options.previewWidth;
+        return {
+          ...textSet,
+          fontSize: Math.round(textSet.fontSize * scaleFactor),
+        };
+      };
 
-      // Sort text overlays by zIndex before rendering
-      const sortedTextData = [...options.textData].sort(
-        (a, b) => a.zIndex - b.zIndex
-      );
+      // Generate frames with scaled text
+      const frames: { data: Uint8ClampedArray; delay: number }[] = [];
+      const TOTAL_FRAMES = 60;
+      const FRAME_DELAY = 40;
 
-      // Draw text overlays in order of zIndex
-      sortedTextData.forEach((textSet) => {
-        renderText(ctx, textSet, canvas);
-      });
+      for (let frameIndex = 0; frameIndex < TOTAL_FRAMES; frameIndex++) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
 
-      // Draw background-removed image on top
-      ctx.drawImage(bgRemovedImage, 0, 0, canvas.width, canvas.height);
+        // Scale and sort text by zIndex
+        const scaledTextData = options.textData
+          .map(scaleTextProperties)
+          .sort((a, b) => a.zIndex - b.zIndex);
 
-      // Create GIF frame
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const frames = [
-        {
-          data: imageData.data,
-          delay: options.delay || 0,
-        },
-      ];
+        // Draw each text with animation
+        scaledTextData.forEach((textSet) => {
+          ctx.save();
 
-      // Generate GIF with proper dimensions
+          // Calculate positions relative to original dimensions
+          const x = canvas.width * (textSet.left / 100);
+          const y = canvas.height * (textSet.top / 100);
+
+          ctx.translate(x, y);
+          applyAnimationProperties(ctx, textSet, frameIndex, TOTAL_FRAMES);
+
+          // Apply text properties
+          ctx.font = `${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
+          ctx.fillStyle = textSet.color;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(textSet.text, 0, 0);
+
+          ctx.restore();
+        });
+
+        // Draw background removed image if exists
+        if (bgRemovedImage) {
+          ctx.drawImage(bgRemovedImage, 0, 0, canvas.width, canvas.height);
+        }
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        frames.push({ data: imageData.data, delay: FRAME_DELAY });
+      }
+
+      // Generate high-quality GIF
       const output = await encode({
         width: canvas.width,
         height: canvas.height,
         frames,
-        // quality: 1 // Uncomment if you want to adjust quality
+        maxColors: 256, // Maximum color palette for better quality
+        format: "blob",
       });
 
       const blob = new Blob([output], { type: "image/gif" });
       const gifUrl = URL.createObjectURL(blob);
-
       setGeneratedGif(gifUrl);
-      toast.success("GIF generated successfully!");
       return gifUrl;
     } catch (error) {
       console.error("GIF generation error:", error);
@@ -135,12 +187,8 @@ export function useGifGenerator() {
     } finally {
       setIsGenerating(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return {
-    isGenerating,
-    generatedGif,
-    generateGif,
-    setGeneratedGif,
-  };
+  return { generateGif, isGenerating, generatedGif, setGeneratedGif };
 }

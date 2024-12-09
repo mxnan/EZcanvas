@@ -1,3 +1,5 @@
+import { TextSet } from "./text";
+
 export interface ImageProcessorResult {
   originalUrl: string;
   bgRemovedUrl: string;
@@ -18,5 +20,11 @@ export interface ImageDimensions {
 export interface ImageProcessorOptions {
   containerWidth: number;
   containerHeight: number;
-  scaleFactor: number;
+}
+
+export interface GifOptions {
+  images: string[];
+  textData: TextSet[];
+  previewWidth: number;
+  previewHeight: number;
 }
