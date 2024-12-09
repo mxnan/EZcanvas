@@ -27,11 +27,11 @@ import { useGifGenerator } from "@/hooks/use-gif-gen";
 import { useUserStore } from "@/store/use-user-store";
 import GenCount from "@/components/_create/gen-count";
 import PayDialog from "@/components/_create/pay-dialog";
-import { ImageProcessorResult } from "@/types/image";
+import { ImageDimensions, ImageProcessorResult } from "@/types/image";
 import { useImageProcessor } from "@/components/_create/image-processor";
 import { UnsplashDialog } from "@/components/_create/unsplash-dialog";
 import dynamic from "next/dynamic";
-import {  AnimationType } from "@/types/animation";
+
 import { TextSet } from "@/types/text";
 const TextCustomizer = dynamic(
   () => import("@/components/_create/text-customizer"),
@@ -62,9 +62,14 @@ export default function CreatePage() {
 // app/app/page.tsx or CreateApp.tsx
 
 function CreateApp() {
-  const containerWidth = 450;
-  const containerHeight = 300;
-  const SCALE_FACTOR = 2;
+  const [imageDimensions, setImageDimensions] = useState<ImageDimensions>({
+    preview: { width: 0, height: 0 },
+    final: { width: 0, height: 0 },
+  });
+
+  // Calculate container dimensions based on viewport and device
+  const containerWidth = Math.min(window.innerWidth * 0.8, 400);
+  const containerHeight = Math.min(window.innerHeight * 0.6, 300);
 
   // States
 
@@ -75,13 +80,6 @@ function CreateApp() {
   const [isUnsplash, setIsUnsplash] = useState(false);
   const [unsplashUrl, setUnsplashUrl] = useState("");
   const [showPayDialog, setShowPayDialog] = useState(false);
-  const [imageDimensions, setImageDimensions] = useState({
-    preview: { width: containerWidth, height: containerHeight },
-    final: {
-      width: containerWidth * SCALE_FACTOR,
-      height: containerHeight * SCALE_FACTOR,
-    },
-  });
 
   const { isGenerating, generatedGif, generateGif, setGeneratedGif } =
     useGifGenerator();
@@ -112,7 +110,7 @@ function CreateApp() {
     decrementGenerations: useUserStore.getState().decrementGenerations,
     containerWidth,
     containerHeight,
-    scaleFactor: SCALE_FACTOR,
+    scaleFactor: 2,
   });
 
   // Handle file uploads from device
@@ -147,20 +145,17 @@ function CreateApp() {
     }
 
     try {
-      // Scale up text properties for final GIF
+      // Scale text properties for final GIF
       const scaledTextSets = textSets.map((textSet) => ({
         ...textSet,
-        fontSize: textSet.fontSize * SCALE_FACTOR,
-        // Ensure animation type is included
         animation: textSet.animation || { type: "fadeInSlideUp" },
       }));
 
       await generateGif({
         images: [originalImage, backgroundImage],
         textData: scaledTextSets,
-        gifWidth: imageDimensions.final.width,
-        gifHeight: imageDimensions.final.height,
-        delay: 0,
+        previewWidth: imageDimensions.preview.width,
+        previewHeight: imageDimensions.preview.height,
       });
     } catch (error) {
       console.error("Error generating GIF:", error);
@@ -186,7 +181,7 @@ function CreateApp() {
         rotation: 0,
         zIndex: 10,
         animation: {
-          type: "fadeInSlideUp", // Default animation
+          type: "", // Default animation
         },
       },
     ]);
@@ -210,7 +205,7 @@ function CreateApp() {
   }, []);
   // Add a method to handle animation type change
   const handleAnimationTypeChange = useCallback(
-    (id: number, animationType: AnimationType) => {
+    (id: number, animationType: string) => {
       setTextSets((prev) =>
         prev.map((textSet) =>
           textSet.id === id
@@ -248,9 +243,7 @@ function CreateApp() {
       <div className="min-h-screen px-4 lg:px-8 space-y-6 pb-24">
         {/* Upload Section */}
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
-          <h1 className="text-4xl text-start  font-extrabold">
-            Create Your GIF
-          </h1>
+          <h1 className="text-4xl text-start font-extrabold">Create Your GIF</h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild disabled={loading}>
               <button
@@ -319,15 +312,15 @@ function CreateApp() {
         </div>
 
         {/* Image Preview Section */}
-        <div className="relative w-full h-auto flex flex-col xl:flex-row gap-8 p-3 border rounded-2xl">
+        <div className="relative w-full h-auto flex flex-col lg:flex-row items-center gap-8 p-3 border rounded-2xl">
           {originalImage && backgroundImage ? (
-            <div
+            <div 
               className="relative mx-auto xl:mx-8"
               style={{
                 width: imageDimensions.preview.width,
                 height: imageDimensions.preview.height,
                 maxWidth: "100%",
-                aspectRatio: `${imageDimensions.preview.width} / ${imageDimensions.preview.height}`,
+                aspectRatio: `${imageDimensions.preview.width} / ${imageDimensions.preview.height}`
               }}
             >
               <div className="flex-1 relative w-full h-full">
@@ -337,7 +330,7 @@ function CreateApp() {
                   alt="Original"
                   style={{
                     width: imageDimensions.preview.width,
-                    height: imageDimensions.preview.height,
+                    height: imageDimensions.preview.height
                   }}
                   className="absolute inset-0 object-contain z-0"
                 />
@@ -369,7 +362,7 @@ function CreateApp() {
                   alt="Background Removed"
                   style={{
                     width: imageDimensions.preview.width,
-                    height: imageDimensions.preview.height,
+                    height: imageDimensions.preview.height
                   }}
                   className="absolute inset-0 object-contain z-20"
                 />
@@ -384,7 +377,7 @@ function CreateApp() {
           {/* Text Customization Section */}
           {originalImage && backgroundImage && (
             <div className="flex flex-col w-full">
-              <div className="flex flex-col sm:flex-row items-center max-xl:justify-center gap-6 mb-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-4">
                 <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
                 <Button
                   onClick={() => {
@@ -394,14 +387,9 @@ function CreateApp() {
                 >
                   Reset textsets
                 </Button>
-                {/* <Button variant="destructive" onClick={resetEverything}>
-                  Reset Everything
-                </Button> */}
                 <Button
                   onClick={handleGifGeneration}
-                  disabled={Boolean(
-                    isGenerating || !textSets.length || generatedGif
-                  )}
+                  disabled={Boolean(isGenerating || !textSets.length || generatedGif)}
                   className="gap-2"
                   variant={"destructive"}
                 >
@@ -415,7 +403,7 @@ function CreateApp() {
                   )}
                 </Button>
               </div>
-              <ScrollArea className="relative h-[40rem] lg:h-[35.7rem] space-y-3 border p-3 rounded-2xl">
+              <ScrollArea className="relative min-h-24 max-h-[30rem] overflow-y-scroll space-y-3 border p-3 rounded-2xl">
                 {textSets.length > 0 ? (
                   [...textSets]
                     .reverse()
@@ -430,9 +418,9 @@ function CreateApp() {
                       />
                     ))
                 ) : (
-                  <div className="absolute inset-0">
-                    <div className="relative h-full flex items-center justify-center overflow-hidden ">
-                      <Loader className="animate-spin" />
+                  <div className="absolute inset-0 ">
+                    <div className="relative h-full flex flex-wrap gap-4 items-center justify-center overflow-hidden">
+                      Add some textsets here <Loader className="animate-spin" />
                     </div>
                   </div>
                 )}
@@ -441,6 +429,7 @@ function CreateApp() {
           )}
         </div>
 
+        {/* Generated GIF Preview */}
         {generatedGif && (
           <div className="mt-6 border rounded-lg p-4">
             <h2 className="text-xl font-bold mb-4">Generated GIF Preview</h2>

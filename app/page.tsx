@@ -6,19 +6,19 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="relative flex-1 w-full ">
-      <div className="w-full px-3 mt-24 max-w-xl mx-auto ">
+      <div className="w-full px-3 mt-24 mx-auto ">
         <h1 className="text-center  text-4xl font-extrabold my-6 mt-12">
           IMAGE-TEXT-GIF
         </h1>
-        <div className="relative h-[70vh] rounded-2xl border shadow-2xl overflow-hidden w-full">
+        <div className="relative h-screen rounded-2xl border shadow-2xl overflow-hidden w-full">
           <Image
-            src={
-              "https://images.unsplash.com/photo-1731935923419-53a7994520be?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            }
-            alt="logout"
+            src={"/static/hero.gif"}
+            alt="hero"
             fill
+            unoptimized
+            quality={100}
             sizes="(100vw, 100vh)"
-            className="object-cover aspect-mobile h-full w-full"
+            className="h-full object-cover  w-full"
           />
           <Link
             href="/create"
@@ -33,7 +33,7 @@ export default function Home() {
           >
             Create now ?
           </Link>
-          <div className="absolute inset-0 backdrop-blur-[1px] bg-opacity-75" />
+          {/* <div className="absolute inset-0 backdrop-blur-[1px] bg-opacity-75" /> */}
         </div>
         <div className="flex mt-8 items-center justify-center">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum,

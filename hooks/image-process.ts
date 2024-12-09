@@ -51,25 +51,37 @@ async function calculateImageDimensions(
 function calculateDimensions(
   originalWidth: number,
   originalHeight: number,
-  { containerWidth, containerHeight, scaleFactor }: ImageProcessorOptions
-) {
-  let previewWidth = containerWidth;
-  let previewHeight = containerHeight;
-  const aspectRatio = originalWidth / originalHeight;
+  options: ImageProcessorOptions
+): ImageDimensions {
+  // Keep original dimensions for final output
+  const finalWidth = originalWidth;
+  const finalHeight = originalHeight;
 
-  if (originalHeight > originalWidth) {
-    previewHeight = containerHeight;
-    previewWidth = previewHeight * aspectRatio;
+  // Calculate preview dimensions for UI
+  const containerRatio = options.containerWidth / options.containerHeight;
+  const imageRatio = originalWidth / originalHeight;
+  
+  let previewWidth: number;
+  let previewHeight: number;
+
+  if (imageRatio > containerRatio) {
+    // Image is wider than container
+    previewWidth = options.containerWidth;
+    previewHeight = options.containerWidth / imageRatio;
   } else {
-    previewWidth = containerWidth;
-    previewHeight = previewWidth / aspectRatio;
+    // Image is taller than container
+    previewHeight = options.containerHeight;
+    previewWidth = options.containerHeight * imageRatio;
   }
 
   return {
-    preview: { width: previewWidth, height: previewHeight },
-    final: { 
-      width: previewWidth * scaleFactor,
-      height: previewHeight * scaleFactor 
+    preview: {
+      width: Math.round(previewWidth),
+      height: Math.round(previewHeight)
     },
+    final: {
+      width: finalWidth,
+      height: finalHeight
+    }
   };
 }

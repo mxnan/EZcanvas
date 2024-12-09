@@ -14,9 +14,8 @@ import {
 interface GifOptions {
   images: string[];
   textData: TextSet[];
-  gifWidth?: number;
-  gifHeight?: number;
-  delay?: number;
+  previewWidth: number;
+  previewHeight: number;
 }
 
 export function useGifGenerator() {
@@ -90,7 +89,7 @@ export function useGifGenerator() {
     setIsGenerating(true);
 
     try {
-      // Load images
+      // Load images at full resolution
       const [baseImage, bgRemovedImage] = await Promise.all(
         options.images.map(async (imgUrl) => {
           const img = new Image();
@@ -104,75 +103,77 @@ export function useGifGenerator() {
         })
       );
 
+      // Use original image dimensions
       const canvas = document.createElement("canvas");
-      canvas.width = options.gifWidth || baseImage.naturalWidth;
-      canvas.height = options.gifHeight || baseImage.naturalHeight;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      canvas.width = baseImage.naturalWidth;
+      canvas.height = baseImage.naturalHeight;
+
+      const ctx = canvas.getContext("2d", {
+        willReadFrequently: true,
+        alpha: true,
+      });
       if (!ctx) throw new Error("Failed to get canvas context");
 
-      // Generate animation frames
-      const frames: { data: Uint8ClampedArray; delay: number }[] = [];
-      const TOTAL_FRAMES = 60; // Total frames for the animation
-      const FRAME_DELAY = 40; // 20fps
+      // Scale text properties relative to original dimensions
+      const scaleTextProperties = (textSet: TextSet) => {
+        const scaleFactor = baseImage.naturalWidth / options.previewWidth;
+        return {
+          ...textSet,
+          fontSize: Math.round(textSet.fontSize * scaleFactor),
+        };
+      };
 
-      // Create frames for the animation sequence
+      // Generate frames with scaled text
+      const frames: { data: Uint8ClampedArray; delay: number }[] = [];
+      const TOTAL_FRAMES = 60;
+      const FRAME_DELAY = 40;
+
       for (let frameIndex = 0; frameIndex < TOTAL_FRAMES; frameIndex++) {
-        // Clear and draw background
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
 
-        // Sort text by zIndex
-        const sortedTextData = [...options.textData].sort(
-          (a, b) => a.zIndex - b.zIndex
-        );
+        // Scale and sort text by zIndex
+        const scaledTextData = options.textData
+          .map(scaleTextProperties)
+          .sort((a, b) => a.zIndex - b.zIndex);
 
         // Draw each text with animation
-        sortedTextData.forEach((textSet) => {
-          ctx.save(); // Save context state before transformations
+        scaledTextData.forEach((textSet) => {
+          ctx.save();
 
-          // Calculate base position
+          // Calculate positions relative to original dimensions
           const x = canvas.width * (textSet.left / 100);
           const y = canvas.height * (textSet.top / 100);
 
-          // Move to text position first
           ctx.translate(x, y);
-
-          // Apply animation transformations
           applyAnimationProperties(ctx, textSet, frameIndex, TOTAL_FRAMES);
 
-          // Set text properties
+          // Apply text properties
           ctx.font = `${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
           ctx.fillStyle = textSet.color;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-
-          // Draw the text at origin (0,0) since we've already translated
           ctx.fillText(textSet.text, 0, 0);
 
-          ctx.restore(); // Restore context state after drawing
+          ctx.restore();
         });
 
-        // Draw background image if exists
+        // Draw background removed image if exists
         if (bgRemovedImage) {
           ctx.drawImage(bgRemovedImage, 0, 0, canvas.width, canvas.height);
         }
 
-        // Capture frame
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        frames.push({
-          data: imageData.data,
-          delay: FRAME_DELAY,
-        });
+        frames.push({ data: imageData.data, delay: FRAME_DELAY });
       }
 
-      // Generate GIF
+      // Generate high-quality GIF
       const output = await encode({
         width: canvas.width,
         height: canvas.height,
-        maxColors: 255,
-        format: "blob",
         frames,
-        // quality: 10,
+        maxColors: 256, // Maximum color palette for better quality
+        format: "blob",
       });
 
       const blob = new Blob([output], { type: "image/gif" });
