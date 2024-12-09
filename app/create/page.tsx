@@ -1,10 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @next/next/no-img-element */
-
 "use client";
 import Authenticate from "@/components/_create/authenticate";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { buttonVariants } from "@/components/ui/button";
 import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -15,31 +11,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   ArrowRight,
-  Download,
   ImageDownIcon,
   Loader,
   MonitorSmartphone,
-  SquareX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { useGifGenerator } from "@/hooks/use-gif-gen";
 import { useUserStore } from "@/store/use-user-store";
 import GenCount from "@/components/_create/gen-count";
-import PayDialog from "@/components/_create/pay-dialog";
 import { ImageDimensions, ImageProcessorResult } from "@/types/image";
 import { useImageProcessor } from "@/components/_create/image-processor";
-import { UnsplashDialog } from "@/components/_create/unsplash-dialog";
 import dynamic from "next/dynamic";
-
 import { TextSet } from "@/types/text";
-const TextCustomizer = dynamic(
-  () => import("@/components/_create/text-customizer"),
+import { ImagePreview } from "@/components/_create/image-preview";
+import { TextCustomizerSection } from "@/components/_create/text-customizer-section";
+import { GeneratedGifSection } from "@/components/_create/generated-gif-section";
+
+const UnsplashDialog = dynamic(
+  () => import("@/components/_create/unsplash-dialog"),
   {
     ssr: false,
-    loading: () => <div className="h-[170px] animate-pulse bg-secondary/30" />,
+    loading: () => <div className="animate-pulse bg-secondary/30 h-[300px]" />,
   }
 );
+
+const PayDialog = dynamic(() => import("@/components/_create/pay-dialog"), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-secondary/30 h-[300px]" />,
+});
 
 export default function CreatePage() {
   const { profile, isLoading } = useUserStore();
@@ -58,8 +57,6 @@ export default function CreatePage() {
     </section>
   );
 }
-//////////////////////// main app down below ///////////////////////////
-// app/app/page.tsx or CreateApp.tsx
 
 function CreateApp() {
   const [imageDimensions, setImageDimensions] = useState<ImageDimensions>({
@@ -72,7 +69,6 @@ function CreateApp() {
   const containerHeight = Math.min(window.innerHeight * 0.6, 300);
 
   // States
-
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,7 +95,7 @@ function CreateApp() {
     setLoading(false);
     setIsUnsplash(false);
     setUnsplashUrl("");
-    setGeneratedGif(null); // Now this will work properly
+    setGeneratedGif(null);
   };
 
   const { handleFileUpload, handleUnsplashUpload } = useImageProcessor({
@@ -127,6 +123,7 @@ function CreateApp() {
       event.target.value = "";
     }
   };
+
   // Handle Unsplash URL upload
   const handleUnsplashSubmit = async () => {
     if (!unsplashUrl) {
@@ -145,7 +142,6 @@ function CreateApp() {
     }
 
     try {
-      // Scale text properties for final GIF
       const scaledTextSets = textSets.map((textSet) => ({
         ...textSet,
         animation: textSet.animation || { type: "fadeInSlideUp" },
@@ -163,7 +159,7 @@ function CreateApp() {
     }
   };
 
-  // Add a new text overlay
+  // Text management functions
   const addNewTextSet = () => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
     setTextSets((prev) => [
@@ -181,15 +177,14 @@ function CreateApp() {
         rotation: 0,
         zIndex: 10,
         animation: {
-          type: "", // Default animation
+          type: "",
         },
       },
     ]);
   };
 
-  // Update attributes of a specific text overlay
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleAttributeChange = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (id: number, attribute: string, value: any) => {
       setTextSets((prev) =>
         prev.map((set) =>
@@ -203,7 +198,7 @@ function CreateApp() {
   const removeTextSet = useCallback((id: number) => {
     setTextSets((prev) => prev.filter((set) => set.id !== id));
   }, []);
-  // Add a method to handle animation type change
+
   const handleAnimationTypeChange = useCallback(
     (id: number, animationType: string) => {
       setTextSets((prev) =>
@@ -222,20 +217,9 @@ function CreateApp() {
     []
   );
 
-  // duplicate textset
   const duplicateTextSet = (textSet: TextSet) => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
     setTextSets((prev) => [...prev, { ...textSet, id: newId }]);
-  };
-
-  // Download GIF and reset states
-  const downloadGif = () => {
-    if (!generatedGif) return;
-    const link = document.createElement("a");
-    link.href = generatedGif;
-    link.download = "mxnan-image-text.gif";
-    link.click();
-    toast.success("GIF downloaded successfully!");
   };
 
   return (
@@ -243,12 +227,14 @@ function CreateApp() {
       <div className="min-h-screen px-4 lg:px-8 space-y-6 pb-24">
         {/* Upload Section */}
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
-          <h1 className="text-4xl text-start font-extrabold">Create Your GIF</h1>
+          <h1 className="text-4xl text-start font-extrabold">
+            Create Your GIF
+          </h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild disabled={loading}>
               <button
                 className={cn(
-                  " font-extrabold",
+                  "font-extrabold",
                   buttonVariants({ variant: "default" })
                 )}
               >
@@ -272,7 +258,7 @@ function CreateApp() {
             >
               <DropdownMenuItem asChild>
                 <button
-                  className=" text-lg cursor-pointer font-extrabold"
+                  className="text-lg cursor-pointer font-extrabold"
                   onClick={() => setIsUnsplash(true)}
                 >
                   <ImageDownIcon className="h-10 w-10 stroke-[2px]" /> from
@@ -281,7 +267,7 @@ function CreateApp() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <button
-                  className=" text-lg cursor-pointer font-extrabold"
+                  className="text-lg cursor-pointer font-extrabold"
                   onClick={() => document.getElementById("fileInput")?.click()}
                 >
                   <MonitorSmartphone className="h-10 w-10 stroke-[2px]" /> from
@@ -311,161 +297,38 @@ function CreateApp() {
           />
         </div>
 
-        {/* Image Preview Section */}
+        {/* Image Preview and Text Customizer Section */}
         <div className="relative w-full h-auto flex flex-col lg:flex-row items-center gap-8 p-3 border rounded-2xl">
-          {originalImage && backgroundImage ? (
-            <div 
-              className="relative mx-auto xl:mx-8"
-              style={{
-                width: imageDimensions.preview.width,
-                height: imageDimensions.preview.height,
-                maxWidth: "100%",
-                aspectRatio: `${imageDimensions.preview.width} / ${imageDimensions.preview.height}`
-              }}
-            >
-              <div className="flex-1 relative w-full h-full">
-                {/* Original Image */}
-                <img
-                  src={originalImage}
-                  alt="Original"
-                  style={{
-                    width: imageDimensions.preview.width,
-                    height: imageDimensions.preview.height
-                  }}
-                  className="absolute inset-0 object-contain z-0"
-                />
-                {/* Text Overlays */}
-                {textSets.map((textSet) => (
-                  <div
-                    key={textSet.id}
-                    style={{
-                      position: "absolute",
-                      top: `${textSet.top}%`,
-                      left: `${textSet.left}%`,
-                      transform: `translate(-50%, -50%)`,
-                      color: textSet.color,
-                      fontSize: `${textSet.fontSize}px`,
-                      fontWeight: textSet.fontWeight,
-                      fontFamily: textSet.fontFamily,
-                      zIndex: textSet.zIndex,
-                      opacity: textSet.opacity,
-                      rotate: `${textSet.rotation}deg`,
-                    }}
-                    className="whitespace-nowrap"
-                  >
-                    {textSet.text}
-                  </div>
-                ))}
-                {/* Background-Removed Image */}
-                <img
-                  src={backgroundImage}
-                  alt="Background Removed"
-                  style={{
-                    width: imageDimensions.preview.width,
-                    height: imageDimensions.preview.height
-                  }}
-                  className="absolute inset-0 object-contain z-20"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="relative flex-1 flex items-center justify-center w-full min-h-[60vh] rounded-2xl overflow-hidden">
-              <Loader className="animate-spin" />
-            </div>
-          )}
+          <ImagePreview
+            originalImage={originalImage}
+            backgroundImage={backgroundImage}
+            imageDimensions={imageDimensions}
+            textSets={textSets}
+          />
 
-          {/* Text Customization Section */}
           {originalImage && backgroundImage && (
-            <div className="flex flex-col w-full">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-4">
-                <Button onClick={addNewTextSet}>Add New Text Overlay</Button>
-                <Button
-                  onClick={() => {
-                    setTextSets([]);
-                    toast.success("Text overlays cleared");
-                  }}
-                >
-                  Reset textsets
-                </Button>
-                <Button
-                  onClick={handleGifGeneration}
-                  disabled={Boolean(isGenerating || !textSets.length || generatedGif)}
-                  className="gap-2"
-                  variant={"destructive"}
-                >
-                  {isGenerating ? (
-                    <>
-                      Generating GIF
-                      <Loader className="h-4 w-4 animate-spin" />
-                    </>
-                  ) : (
-                    "Generate GIF"
-                  )}
-                </Button>
-              </div>
-              <ScrollArea className="relative min-h-24 max-h-[30rem] overflow-y-scroll space-y-3 border p-3 rounded-2xl">
-                {textSets.length > 0 ? (
-                  [...textSets]
-                    .reverse()
-                    .map((textSet) => (
-                      <TextCustomizer
-                        key={textSet.id}
-                        textSet={textSet}
-                        onTextChange={handleAttributeChange}
-                        onDelete={removeTextSet}
-                        onDuplicate={duplicateTextSet}
-                        onAnimationChange={handleAnimationTypeChange}
-                      />
-                    ))
-                ) : (
-                  <div className="absolute inset-0 ">
-                    <div className="relative h-full flex flex-wrap gap-4 items-center justify-center overflow-hidden">
-                      Add some textsets here <Loader className="animate-spin" />
-                    </div>
-                  </div>
-                )}
-              </ScrollArea>
-            </div>
+            <TextCustomizerSection
+              textSets={textSets}
+              isGenerating={isGenerating}
+              generatedGif={generatedGif}
+              onAddNewText={addNewTextSet}
+              onClearText={() => setTextSets([])}
+              onGenerateGif={handleGifGeneration}
+              onTextChange={handleAttributeChange}
+              onTextDelete={removeTextSet}
+              onTextDuplicate={duplicateTextSet}
+              onAnimationChange={handleAnimationTypeChange}
+            />
           )}
         </div>
 
-        {/* Generated GIF Preview */}
-        {generatedGif && (
-          <div className="mt-6 border rounded-lg p-4">
-            <h2 className="text-xl font-bold mb-4">Generated GIF Preview</h2>
-            <div className="relative aspect-video h-96 w-full overflow-hidden rounded-lg">
-              <Image
-                src={generatedGif}
-                alt="Generated GIF"
-                fill
-                priority
-                unoptimized
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="mt-6 flex max-sm:flex-col gap-4 justify-center">
-              <Button onClick={downloadGif} className="gap-2">
-                <Download className="h-4 w-4" />
-                Download GIF
-              </Button>
-              <Button
-                variant={"destructive"}
-                onClick={() => {
-                  setGeneratedGif(null);
-                }}
-                className="gap-2"
-              >
-                <SquareX /> Modify this further
-              </Button>
-            </div>
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              Note: If you need to modify this GIF, click &quot;Modify this
-              further&quot; to return to editing and generate new gif.
-              Otherwise, upload a new image to start fresh.
-            </p>
-          </div>
-        )}
+        {/* Generated GIF Section */}
+        <GeneratedGifSection
+          generatedGif={generatedGif}
+          onReset={() => setGeneratedGif(null)}
+        />
       </div>
+
       <PayDialog
         isOpen={showPayDialog}
         onClose={() => setShowPayDialog(false)}
