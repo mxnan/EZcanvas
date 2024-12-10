@@ -1,4 +1,3 @@
-"use client";
 import { useUserStore } from "@/store/use-user-store";
 import { Button } from "../ui/button";
 import { useState } from "react";

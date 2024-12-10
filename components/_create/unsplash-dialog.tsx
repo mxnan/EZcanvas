@@ -10,7 +10,7 @@ interface UnsplashDialogProps {
   onUrlChange: (url: string) => void;
 }
 
-export function UnsplashDialog({ isOpen, onClose, onSubmit, url, onUrlChange }: UnsplashDialogProps) {
+export default function UnsplashDialog({ isOpen, onClose, onSubmit, url, onUrlChange }: UnsplashDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
