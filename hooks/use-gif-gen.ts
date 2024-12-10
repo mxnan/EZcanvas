@@ -110,7 +110,7 @@ export function useGifGenerator() {
 
       const ctx = canvas.getContext("2d", {
         willReadFrequently: true,
-        alpha: true,
+        alpha: false,
       });
       if (!ctx) throw new Error("Failed to get canvas context");
 
@@ -172,8 +172,9 @@ export function useGifGenerator() {
         width: canvas.width,
         height: canvas.height,
         frames,
-        maxColors: 256, // Maximum color palette for better quality
+        // maxColors: 256, // Maximum color palette for better quality
         format: "blob",
+        
       });
 
       const blob = new Blob([output], { type: "image/gif" });
