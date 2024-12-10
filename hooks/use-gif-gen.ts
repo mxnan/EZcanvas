@@ -126,7 +126,7 @@ export function useGifGenerator() {
       // Generate frames with scaled text
       const frames: { data: Uint8ClampedArray; delay: number }[] = [];
       const TOTAL_FRAMES = 60;
-      const FRAME_DELAY = 40;
+      const FRAME_DELAY = 50;
 
       for (let frameIndex = 0; frameIndex < TOTAL_FRAMES; frameIndex++) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);

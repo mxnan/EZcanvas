@@ -28,52 +28,52 @@ export const EASING_FUNCTIONS = {
 };
 
 export const ANIMATION_REGISTRY: Record<string, AnimationConfig> = {
-  slideTop: {
+  fadeslideTop: {
     type: "slide",
     duration: 60,
     delay: 40,
     easing: "easeInOut",
     properties: {
       opacity: [0, 1, 0],
-      y: [-400, 0, -400],
+      y: [-600, 0, -600],
     },
-    description: "Slide from top",
+    description: "Slide,Fade from top",
     category: "basic",
   },
-  slideBottom: {
+  fadeslideBottom: {
     type: "slide",
     duration: 60,
     delay: 40,
     easing: "easeInOut",
     properties: {
       opacity: [0, 1, 0],
-      y: [400, 0, 400],
+      y: [600, 0, 600],
     },
-    description: "Slide from bottom",
+    description: "Slide,Fade from bottom",
     category: "basic",
   },
-  slideLeft: {
+  fadeslideLeft: {
     type: "slide",
     duration: 60,
     delay: 40,
     easing: "easeInOut",
     properties: {
       opacity: [0, 1, 0],
-      x: [-400, 0, -400],
+      x: [-600, 0, -600],
     },
-    description: "Slide from left",
+    description: "Slide,Fade from left",
     category: "basic",
   },
-  slideRight: {
+  fadeslideRight: {
     type: "slide",
     duration: 60,
     delay: 40,
     easing: "easeInOut",
     properties: {
       opacity: [0, 1, 0],
-      x: [400, 0, 400],
+      x: [600, 0, 600],
     },
-    description: "Slide from right",
+    description: "Slide,Fade from right",
     category: "basic",
   },
   //basic

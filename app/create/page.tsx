@@ -144,7 +144,7 @@ function CreateApp() {
     try {
       const scaledTextSets = textSets.map((textSet) => ({
         ...textSet,
-        animation: textSet.animation || { type: "fadeInSlideUp" },
+        animation: textSet.animation || { type: "" },
       }));
 
       await generateGif({
