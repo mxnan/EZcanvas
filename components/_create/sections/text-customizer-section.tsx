@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { Button } from "../ui/button";
-import { ScrollArea } from "../ui/scroll-area";
+
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
 import { TextSet } from "@/types/text";
 import dynamic from "next/dynamic";
-import GenerateGifDialog from "./gen-dialog";
 
-const TextCustomizer = dynamic(() => import("./text-customizer"), {
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import GenerateGifDialog from "../dialog/gen-dialog";
+
+const TextCustomizer = dynamic(() => import("../text-customizer"), {
   ssr: false,
   loading: () => <div className="h-[170px] animate-pulse bg-secondary/30" />,
 });

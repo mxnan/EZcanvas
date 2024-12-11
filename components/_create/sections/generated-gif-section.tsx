@@ -1,8 +1,9 @@
 import React from "react";
 import Image from "next/image";
-import { Button } from "../ui/button";
+
 import { Download, SquareX } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface GeneratedGifSectionProps {
   generatedGif: string | null;

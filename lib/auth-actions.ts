@@ -6,34 +6,38 @@ import { toast } from "sonner";
 import { revalidatePath } from "next/cache";
 
 export async function signout() {
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    toast.error(error.message);
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Sign out error:', error);
+    toast.error("Failed to sign out");
     return false;
   }
-  return true;
 }
 
 export async function signInWithGoogle() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+        redirectTo: `${process.env.NEXT_PUBLIC_URL}/create`,
       },
+    });
 
-      redirectTo: `${process.env.NEXT_PUBLIC_URL + "/create"}`,
-    },
-  });
-
-  if (error) {
-    toast.error(error.message);
-    redirect("/error");
+    if (error) throw error;
+    
+    revalidatePath("/", "layout");
+    redirect(data.url);
+  } catch (error) {
+    console.error('Sign in error:', error);
+    redirect("/error?message=authentication-failed");
   }
-
-  revalidatePath("/", "layout");
-  redirect(data.url);
 }

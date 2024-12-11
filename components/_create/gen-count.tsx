@@ -1,7 +1,7 @@
 import { useUserStore } from "@/store/use-user-store";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import PayDialog from "./pay-dialog";
+import PayDialog from "./dialog/pay-dialog";
 
 export default function GenCount() {
   const { profile } = useUserStore();

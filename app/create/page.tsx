@@ -1,5 +1,5 @@
 "use client";
-import Authenticate from "@/components/_create/authenticate";
+import Authenticate from "@/components/_create/dialog/authenticate";
 import { buttonVariants } from "@/components/ui/button";
 import React, { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -24,18 +24,19 @@ import { useImageProcessor } from "@/components/_create/image-processor";
 import dynamic from "next/dynamic";
 import { TextSet } from "@/types/text";
 import { ImagePreview } from "@/components/_create/image-preview";
-import { TextCustomizerSection } from "@/components/_create/text-customizer-section";
-import { GeneratedGifSection } from "@/components/_create/generated-gif-section";
+import { TextCustomizerSection } from "@/components/_create/sections/text-customizer-section";
+import { GeneratedGifSection } from "@/components/_create/sections/generated-gif-section";
+
 
 const UnsplashDialog = dynamic(
-  () => import("@/components/_create/unsplash-dialog"),
+  () => import("@/components/_create/dialog/unsplash-dialog"),
   {
     ssr: false,
     loading: () => <div className="animate-pulse bg-secondary/30 h-[300px]" />,
   }
 );
 
-const PayDialog = dynamic(() => import("@/components/_create/pay-dialog"), {
+const PayDialog = dynamic(() => import("@/components/_create/dialog/pay-dialog"), {
   ssr: false,
   loading: () => <div className="animate-pulse bg-secondary/30 h-[300px]" />,
 });

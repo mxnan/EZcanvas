@@ -4,13 +4,13 @@ import { Eraser, Copy } from "lucide-react";
 import Accordion from "../ui/accordion";
 import { cn } from "@/lib/utils";
 import { TextSet } from "@/types/text";
-import { TextInput } from "./properties/input-controls";
-import { PositionControls } from "./properties/position-controls";
-import { FontFamilySelector } from "./properties/font-family-controls";
-import { ColorPicker } from "./properties/color-controls";
-import { AnimationSelector } from "./properties/anim-controls";
-import { FontProperties } from "./properties/font-controls";
-import { TransformControls } from "./properties/transform-controls";
+import { TextInput } from "./text-properties/input-controls";
+import { PositionControls } from "./text-properties/position-controls";
+import { FontFamilySelector } from "./text-properties/font-family-controls";
+import { ColorPicker } from "./text-properties/color-controls";
+import { AnimationSelector } from "./text-properties/anim-controls";
+import { FontProperties } from "./text-properties/font-controls";
+import { TransformControls } from "./text-properties/transform-controls";
 
 interface TextCustomizerProps {
   textSet: TextSet;
