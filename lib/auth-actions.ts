@@ -1,9 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { toast } from "sonner";
-import { revalidatePath } from "next/cache";
+
 
 export async function signout() {
   try {
@@ -13,12 +11,12 @@ export async function signout() {
     return true;
   } catch (error) {
     console.error('Sign out error:', error);
-    toast.error("Failed to sign out");
+
     return false;
   }
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(): Promise<{ url: string } | null> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -32,12 +30,14 @@ export async function signInWithGoogle() {
       },
     });
 
-    if (error) throw error;
-    
-    revalidatePath("/", "layout");
-    redirect(data.url);
+    if (error) {
+      console.error('Auth error:', error);
+      return null;
+    }
+
+    return { url: data.url };
   } catch (error) {
     console.error('Sign in error:', error);
-    redirect("/error?message=authentication-failed");
+    return null;
   }
 }
