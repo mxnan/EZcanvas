@@ -26,7 +26,7 @@ import { TextSet } from "@/types/text";
 import { ImagePreview } from "@/components/_create/image-preview";
 import { TextCustomizerSection } from "@/components/_create/sections/text-customizer-section";
 import { GeneratedGifSection } from "@/components/_create/sections/generated-gif-section";
-
+import Script from "next/script";
 
 const UnsplashDialog = dynamic(
   () => import("@/components/_create/dialog/unsplash-dialog"),
@@ -36,10 +36,13 @@ const UnsplashDialog = dynamic(
   }
 );
 
-const PayDialog = dynamic(() => import("@/components/_create/dialog/pay-dialog"), {
-  ssr: false,
-  loading: () => <div className="animate-pulse bg-secondary/30 h-[300px]" />,
-});
+const PayDialog = dynamic(
+  () => import("@/components/_create/dialog/pay-dialog"),
+  {
+    ssr: false,
+    loading: () => <div className="animate-pulse bg-secondary/30 h-[300px]" />,
+  }
+);
 
 export default function CreatePage() {
   const { profile, isLoading } = useUserStore();
@@ -60,6 +63,7 @@ export default function CreatePage() {
 }
 
 function CreateApp() {
+  
   const [imageDimensions, setImageDimensions] = useState<ImageDimensions>({
     preview: { width: 0, height: 0 },
     final: { width: 0, height: 0 },
@@ -168,7 +172,7 @@ function CreateApp() {
       {
         id: newId,
         text: "Change this",
-        fontFamily: "Open Sans",
+        fontFamily: "",
         top: 0,
         left: 0,
         color: "currentColor",
@@ -333,6 +337,10 @@ function CreateApp() {
       <PayDialog
         isOpen={showPayDialog}
         onClose={() => setShowPayDialog(false)}
+      />
+      <Script
+        type="text/javascript"
+        src="https://checkout.razorpay.com/v1/checkout.js"
       />
     </div>
   );

@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/nav/navbar";
 import { StoreProvider } from "@/providers/store-provider";
-import { fontsans } from "@/constants/fonts";
 import { siteConfig } from "@/lib/config";
+import { Raleway } from "next/font/google";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -63,6 +63,12 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#000" },
   ],
 };
+// font for root layout
+export const fontsans = Raleway({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export default function RootLayout({
   children,
