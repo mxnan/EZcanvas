@@ -172,7 +172,7 @@ function CreateApp() {
       {
         id: newId,
         text: "Change this",
-        fontFamily: "Open Sans",
+        fontFamily: "",
         top: 0,
         left: 0,
         color: "currentColor",

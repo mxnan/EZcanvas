@@ -12,7 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from "../../ui/command";
-import { FONT_FAMILIES } from "@/constants/fonts";
+import { FONT_FAMILIES, fontInstances } from "@/constants/fonts";
 import { cn } from "@/lib/utils";
 
 interface FontFamilySelectorProps {
@@ -41,7 +41,7 @@ export const FontFamilySelector = ({
           </Button>
         </PopoverTrigger>
       </div>
-      <PopoverContent sideOffset={8} className="w-full p-2">
+      <PopoverContent sideOffset={8} className="w-[400px] p-2">
         <Command>
           <CommandInput placeholder="Search font family..." className="h-9" />
           <CommandList>
@@ -53,8 +53,10 @@ export const FontFamilySelector = ({
                     value={font}
                     key={font}
                     onSelect={() => onTextChange(id, "fontFamily", font)}
-                    className="hover:cursor-pointer"
-                    style={{ fontFamily: font }}
+                    className={cn(
+                      "hover:cursor-pointer",
+                      fontInstances[font as keyof typeof fontInstances]?.className
+                    )}
                   >
                     {font}
                     <CheckIcon
@@ -72,4 +74,4 @@ export const FontFamilySelector = ({
       </PopoverContent>
     </Popover>
   );
-}; 
+};

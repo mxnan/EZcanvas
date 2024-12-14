@@ -9,6 +9,8 @@ const razorpay = new Razorpay({
 
 export async function POST(req: NextRequest) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const body = await req.json(); // Parse request body
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
