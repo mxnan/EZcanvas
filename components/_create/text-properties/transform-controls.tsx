@@ -53,8 +53,8 @@ export const TransformControls = ({
               onTextChange(id, "rotation", value);
             }
           }}
-          min={0}
-          max={360}
+          min={-180}
+          max={180}
           step={1}
           className="mt-2 text-xs font-semibold"
         />

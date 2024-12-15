@@ -54,8 +54,11 @@ export function useGifGenerator() {
     frameIndex: number,
     TOTAL_FRAMES: number
   ) => {
-    const animationType = textSet.animation?.type || "fadeIn";
+    const animationType = textSet.animation?.type || "";
     const config = ANIMATION_REGISTRY[animationType];
+
+    // Set base opacity first
+    ctx.globalAlpha = textSet.opacity;
 
     if (!config) return;
 
@@ -67,18 +70,19 @@ export function useGifGenerator() {
     const properties = config.properties;
 
     // Calculate all transformations first
-    let opacity = textSet.opacity;
+    let animationOpacity = 1;
     let scaleValue = 1;
     let translateX = 0;
     let translateY = 0;
-    let rotationValue = textSet.rotation;
+    let rotationValue = textSet.rotation; // Start with base rotation
 
     Object.entries(properties).forEach(([key, [start, end]]) => {
       const value = start + (end - start) * progress;
 
       switch (key) {
         case "opacity":
-          opacity *= value;
+          // Multiply the animation opacity with the base opacity
+          animationOpacity = value;
           break;
         case "scale":
           scaleValue = value;
@@ -95,10 +99,10 @@ export function useGifGenerator() {
       }
     });
     // Apply transformations in the correct order
-    ctx.globalAlpha = opacity;
+    ctx.globalAlpha *= animationOpacity;
     ctx.translate(translateX, translateY);
     ctx.scale(scaleValue, scaleValue);
-    ctx.rotate((rotationValue * Math.PI) / 180);
+    ctx.rotate((rotationValue * Math.PI) / 180); // Apply combined rotation
   };
 
   const generateGif = useCallback(async (options: GifOptions) => {
@@ -120,10 +124,11 @@ export function useGifGenerator() {
       );
 
       // Calculate resized dimensions
-      const { width: resizedWidth, height: resizedHeight } = calculateResizedDimensions(
-        baseImage.naturalWidth,
-        baseImage.naturalHeight
-      );
+      const { width: resizedWidth, height: resizedHeight } =
+        calculateResizedDimensions(
+          baseImage.naturalWidth,
+          baseImage.naturalHeight
+        );
 
       // Use resized dimensions for canvas
       const canvas = document.createElement("canvas");
