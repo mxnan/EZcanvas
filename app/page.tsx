@@ -10,7 +10,7 @@ export default function Home() {
         <h1 className="text-center  text-4xl font-extrabold my-6 mt-12">
           IMAGE-TEXT-GIF
         </h1>
-        <div className="relative h-screen rounded-2xl border shadow-2xl overflow-hidden w-full">
+        <div className="relative h-screen max-w-3xl mx-auto rounded-2xl border shadow-2xl overflow-hidden w-full">
           <Image
             src={"/static/hero.gif"}
             alt="hero"

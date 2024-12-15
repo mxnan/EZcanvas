@@ -18,6 +18,22 @@ interface GifOptions {
   previewHeight: number;
 }
 
+const calculateResizedDimensions = (width: number, height: number) => {
+  const MAX_SIZE = 1280;
+  let newWidth = width;
+  let newHeight = height;
+
+  if (width > height && width > MAX_SIZE) {
+    newWidth = MAX_SIZE;
+    newHeight = Math.round((height * MAX_SIZE) / width);
+  } else if (height > MAX_SIZE) {
+    newHeight = MAX_SIZE;
+    newWidth = Math.round((width * MAX_SIZE) / height);
+  }
+
+  return { width: newWidth, height: newHeight };
+};
+
 export function useGifGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedGif, setGeneratedGif] = useState<string | null>(null);
@@ -103,10 +119,16 @@ export function useGifGenerator() {
         })
       );
 
-      // Use original image dimensions
+      // Calculate resized dimensions
+      const { width: resizedWidth, height: resizedHeight } = calculateResizedDimensions(
+        baseImage.naturalWidth,
+        baseImage.naturalHeight
+      );
+
+      // Use resized dimensions for canvas
       const canvas = document.createElement("canvas");
-      canvas.width = baseImage.naturalWidth;
-      canvas.height = baseImage.naturalHeight;
+      canvas.width = resizedWidth;
+      canvas.height = resizedHeight;
 
       const ctx = canvas.getContext("2d", {
         willReadFrequently: true,
@@ -114,9 +136,9 @@ export function useGifGenerator() {
       });
       if (!ctx) throw new Error("Failed to get canvas context");
 
-      // Scale text properties relative to original dimensions
+      // Scale text properties relative to resized dimensions
       const scaleTextProperties = (textSet: TextSet) => {
-        const scaleFactor = baseImage.naturalWidth / options.previewWidth;
+        const scaleFactor = resizedWidth / options.previewWidth;
         return {
           ...textSet,
           fontSize: Math.round(textSet.fontSize * scaleFactor),
