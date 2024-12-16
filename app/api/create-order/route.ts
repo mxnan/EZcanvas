@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { createClient } from "@/utils/supabase/server";
 
@@ -7,18 +7,15 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const body = await req.json(); // Parse request body
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if user already has lifetime subscription
@@ -46,8 +43,8 @@ export async function POST(req: NextRequest) {
       currency: "INR",
       receipt: receiptId,
       notes: {
-        userId: user.id
-      }
+        userId: user.id,
+      },
     });
 
     return NextResponse.json({ ...order, userId: user.id });
