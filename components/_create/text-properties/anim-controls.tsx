@@ -45,7 +45,7 @@ export const AnimationSelector = ({
           </Button>
         </PopoverTrigger>
       </div>
-      <PopoverContent className="w-[400px] p-4" align="start">
+      <PopoverContent className="w-[400px] p-4" align="center">
         <Command>
           <CommandInput placeholder="Search animations..." />
           <CommandList>
