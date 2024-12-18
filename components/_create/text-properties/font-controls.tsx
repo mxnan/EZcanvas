@@ -51,8 +51,8 @@ export const FontProperties = ({
               onTextChange(id, "fontSize", value);
             }
           }}
-          min={4}
-          max={200}
+          min={16}
+          max={400}
           step={2}
           className="mt-2 text-xs font-semibold"
         />

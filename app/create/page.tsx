@@ -175,7 +175,7 @@ function CreateApp() {
         fontFamily: "",
         top: 0,
         left: 0,
-        color: "currentColor",
+        color: "",
         fontSize: 48,
         fontWeight: 500,
         opacity: 1,
