@@ -47,7 +47,7 @@ export default function Authenticate({ showDialog = false }: AuthenticateProps) 
     return (
       <div className="relative w-full min-h-screen">
         <div className="absolute inset-0 w-full h-[40vh] flex items-center justify-center">
-          <Loader className="animate-spin" />
+          <Loader className="animate-spin text-orange-700 dark:text-yellow-500" />
         </div>
       </div>
     );

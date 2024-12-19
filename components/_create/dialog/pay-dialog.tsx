@@ -92,13 +92,13 @@ export default function PayDialog({ isOpen, onClose }: PayDialogProps) {
       <DialogContent className="p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Crown className="h-6 w-6 text-yellow-500" />
+            <Crown className="h-6 w-6 text-orange-700 dark:text-yellow-500" />
             GET Lifetime Access
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="rounded-lg border p-4 space-y-4 ">
-            <h3 className="font-bold text-3xl text-muted-foreground">
+          <div className="rounded-lg  *:font-semibold border-orange-700 dark:border-yellow-500 border p-4 space-y-4 ">
+            <h3 className="font-bold text-3xl text-red-500 text-muted-foreground">
               BETA VERSION
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -113,13 +113,17 @@ export default function PayDialog({ isOpen, onClose }: PayDialogProps) {
             </p>
             <p className="text-sm text-muted-foreground">
               I am actively seeking feedback from early users to improve the
-              experience. <strong>Thank you</strong> for being an important part of our journey!
+              experience.{" "}
+              <strong className="text-orange-700 dark:text-yellow-500">
+                Thank you
+              </strong>{" "}
+              for being an important part of my journey!
             </p>
             <p className="text-sm text-muted-foreground">
               Version 1 will introduce exciting features, along with payment
               plans for unlimited access.
             </p>
-            <p className="text-sm text-muted font-semibold">
+            <p className="text-sm text-orange-700 dark:text-yellow-500 text-muted-foreground font-semibold">
               Your support is greatly appreciated!
             </p>
           </div>

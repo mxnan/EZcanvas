@@ -15,7 +15,7 @@ export default function Home() {
           className={cn(
             "",
             buttonVariants({
-              variant: "destructive",
+              variant: "default",
               className: "",
             })
           )}
