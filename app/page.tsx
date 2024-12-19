@@ -4,9 +4,9 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="relative flex-1 w-full ">
-      <div className="w-full max-w-3xl text-center px-3 mt-24 mx-auto ">
-        <h1 className="text-center  text-4xl font-extrabold my-6 mt-12">
+    <div className="relative flex-1 w-full min-h-screen">
+      <div className="w-full max-w-4xl mx-auto text-center px-3 mt-24  ">
+        <h1 className="text-center  text-4xl font-semibold my-6 mt-12">
           IMAGE-TEXT-GIF
         </h1>
 
@@ -15,15 +15,13 @@ export default function Home() {
           className={cn(
             "",
             buttonVariants({
-              variant: "outline",
-              size: "sm",
-              className: "text-xl font-bold ",
+              variant: "destructive",
+              className: "",
             })
           )}
         >
           Create now ?
         </Link>
-        
 
         <div className="flex mt-8 items-center justify-center">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum,

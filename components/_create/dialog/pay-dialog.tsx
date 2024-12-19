@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Crown, Loader } from "lucide-react";
 import { toast } from "sonner";
@@ -38,14 +43,16 @@ export default function PayDialog({ isOpen, onClose }: PayDialogProps) {
                 orderId: response.razorpay_order_id,
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,
-                userId: data.userId
+                userId: data.userId,
               }),
             });
 
             const verifyData = await verifyRes.json();
 
             if (verifyData.isOk) {
-              toast.success("Payment successful! You now have lifetime access.");
+              toast.success(
+                "Payment successful! You now have lifetime access."
+              );
               await fetchProfile(); // Refresh user profile to update UI
               onClose();
             } else {
@@ -57,7 +64,7 @@ export default function PayDialog({ isOpen, onClose }: PayDialogProps) {
           }
         },
         prefill: {
-          name: profile?.email?.split('@')[0] || "User",
+          name: profile?.email?.split("@")[0] || "User",
           email: profile?.email || "",
         },
         theme: {
@@ -75,30 +82,48 @@ export default function PayDialog({ isOpen, onClose }: PayDialogProps) {
     }
   };
 
+  const showToast = () => {
+    toast.warning("BETA VERSION !!!!!!");
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Crown className="h-6 w-6 text-yellow-500" />
-            Upgrade to Lifetime Access
+            GET Lifetime Access
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="rounded-lg border p-4 space-y-3">
-            <h3 className="font-bold text-2xl">₹499</h3>
-            <ul className="space-y-2 text-sm">
-              <li>✓ Unlimited generations</li>
-              <li>✓ Priority support</li>
-              <li>✓ Early access to new features</li>
-              <li>✓ No watermarks</li>
-            </ul>
+          <div className="rounded-lg border p-4 space-y-4 ">
+            <h3 className="font-bold text-3xl text-muted-foreground">
+              BETA VERSION
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              You are currently using the{" "}
+              <span className="font-bold">Beta Version</span> of the{" "}
+              <strong>IMAGE-TEXT-GIF</strong>, which allows
+              <span className="text-red-500 font-semibold">
+                {" "}
+                3 free generations
+              </span>
+              .
+            </p>
+            <p className="text-sm text-muted-foreground">
+              I am actively seeking feedback from early users to improve the
+              experience. <strong>Thank you</strong> for being an important part of our journey!
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Version 1 will introduce exciting features, along with payment
+              plans for unlimited access.
+            </p>
+            <p className="text-sm text-muted font-semibold">
+              Your support is greatly appreciated!
+            </p>
           </div>
-          <Button 
-            onClick={createOrder} 
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button onClick={showToast} className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
                 Processing... <Loader className="ml-2 h-4 w-4 animate-spin" />

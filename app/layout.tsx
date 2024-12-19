@@ -7,6 +7,7 @@ import Navbar from "@/components/nav/navbar";
 import { StoreProvider } from "@/providers/store-provider";
 import { siteConfig } from "@/lib/config";
 import { Raleway } from "next/font/google";
+import Footer from "@/components/nav/footer";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -92,6 +93,7 @@ export default function RootLayout({
           <StoreProvider>
             <Navbar />
             {children}
+            <Footer />
             <Toaster position="top-right" />
           </StoreProvider>
         </ThemeProvider>
