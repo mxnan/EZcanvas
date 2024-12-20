@@ -22,11 +22,11 @@ export async function signInWithGoogle(): Promise<{ url: string } | null> {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
-        redirectTo: `${process.env.NEXT_PUBLIC_URL}/create`,
+        // queryParams: {
+        //   access_type: "offline",
+        //   prompt: "consent",
+        // },
+        redirectTo: `https://image-text-gif.vercel.app/create`,
       },
     });
 
