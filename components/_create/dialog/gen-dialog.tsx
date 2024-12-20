@@ -27,16 +27,37 @@ export default function GenerateGifDialog({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Generate GIF</AlertDialogTitle>
+          <AlertDialogTitle className="text-2xl font-bold">
+            Generate GIF
+          </AlertDialogTitle>{" "}
           <AlertDialogDescription>
-            This will generate an animated GIF with your text overlays and
-            animations. The process may take a few seconds. Are you ready to
-            proceed?
+            <span className="text-sm py-4 text-muted-foreground">
+              Before generating the GIF, ensure that all values are selected and
+              adjusted according to your preferences.
+            </span>
           </AlertDialogDescription>
+          <div className="p-4 rounded-lg *:font-semibold border border-orange-700 dark:border-yellow-500">
+            <p className="font-bold text-lg text-red-500">Important Notice</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              This process may take some time depending on the size of the image
+              and the complexity of the animations applied.
+            </p>
+            <p className="text-sm text-muted-foreground  mt-2">
+              During GIF generation, the screen will become unresponsive, and
+              your browser may display a &quot;Page Unresponsive&quot; message.
+            </p>
+            <p className="text-orange-700 dark:text-yellow-500">
+              Please wait patiently for the loader to complete, and your GIF
+              will be generated successfully.
+            </p>
+            <p className="text-sm text-muted-foreground  mt-2">
+              Will work on making this process smoother in the future.
+            </p>
+          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isGenerating}>Cancel</AlertDialogCancel>
-          {/* Replace AlertDialogAction with Button */}
+
           <Button
             onClick={onConfirm}
             disabled={isGenerating}

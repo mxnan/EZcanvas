@@ -18,8 +18,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     let mouseX = useMotionValue(0);
     let mouseY = useMotionValue(0);
 
-    const lightGlowColor = "#4f46e5"; // Light blue for light theme
-    const darkGlowColor = "#a3e635"; // Lighter blue for dark theme
+    const lightGlowColor = "#c2410c"; // Light blue for light theme
+    const darkGlowColor = "#eab308"; // Lighter blue for dark theme
 
     function handleMouseMove({
       currentTarget,

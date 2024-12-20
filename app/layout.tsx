@@ -6,7 +6,8 @@ import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/nav/navbar";
 import { StoreProvider } from "@/providers/store-provider";
 import { siteConfig } from "@/lib/config";
-import { Raleway } from "next/font/google";
+import { Jura } from "next/font/google";
+import Footer from "@/components/nav/footer";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -64,7 +65,7 @@ export const viewport: Viewport = {
   ],
 };
 // font for root layout
-export const fontsans = Raleway({
+export const fontsans = Jura({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -92,6 +93,7 @@ export default function RootLayout({
           <StoreProvider>
             <Navbar />
             {children}
+            <Footer />
             <Toaster position="top-right" />
           </StoreProvider>
         </ThemeProvider>

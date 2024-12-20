@@ -110,7 +110,7 @@ export const TextCustomizerSection = ({
         ) : (
           <div className="absolute inset-0 ">
             <div className="relative h-full flex flex-wrap gap-4 items-center justify-center overflow-hidden">
-              Add some textsets here <Loader className="animate-spin" />
+              Add some textsets here <Loader className="animate-spin text-orange-700 dark:text-yellow-500" />
             </div>
           </div>
         )}

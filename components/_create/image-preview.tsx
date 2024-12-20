@@ -19,8 +19,9 @@ export const ImagePreview = ({
 }: ImagePreviewProps) => {
   if (!originalImage || !backgroundImage) {
     return (
-      <div className="relative flex-1 flex items-center justify-center w-full min-h-[60vh] rounded-2xl overflow-hidden">
-        <Loader className="animate-spin" />
+      <div className="relative flex-1 flex items-center gap-2 justify-center w-full min-h-[60vh] rounded-2xl overflow-hidden">
+        <p>Upload an image to get Started ? </p>
+        <Loader className="animate-spin text-orange-700 dark:text-yellow-500" />
       </div>
     );
   }
@@ -35,7 +36,7 @@ export const ImagePreview = ({
         aspectRatio: `${imageDimensions.preview.width} / ${imageDimensions.preview.height}`,
       }}
     >
-      <div className="flex-1 relative w-full h-full">
+      <div className="flex-1 relative overflow-hidden w-full h-full">
         {/* Original Image */}
         <img
           src={originalImage}

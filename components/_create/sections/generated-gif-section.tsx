@@ -25,8 +25,7 @@ export const GeneratedGifSection = ({
   };
 
   return (
-    <div className="mt-6 border rounded-lg p-4">
-      <h2 className="text-xl font-bold mb-4">Generated GIF Preview</h2>
+    <div className="mt-6 border border-orange-700 dark:border-yellow-500 rounded-lg p-4">
       <div className="relative aspect-video h-96 w-full overflow-hidden rounded-lg">
         <Image
           src={generatedGif}
@@ -42,19 +41,15 @@ export const GeneratedGifSection = ({
           <Download className="h-4 w-4" />
           Download GIF
         </Button>
-        <Button
-          variant={"destructive"}
-          onClick={onReset}
-          className="gap-2"
-        >
+        <Button variant={"destructive"} onClick={onReset} className="gap-2">
           <SquareX /> Modify this further
         </Button>
       </div>
       <p className="text-center text-sm text-muted-foreground mt-4">
-        Note: If you need to modify this GIF, click &quot;Modify this
-        further&quot; to return to editing and generate new gif.
-        Otherwise, upload a new image to start fresh.
+        <strong className="text-red-500">Note:</strong> If you need to modify
+        this GIF, click &quot;Modify this further&quot; to return to editing and
+        generate new gif. Otherwise, upload a new image to start fresh.
       </p>
     </div>
   );
-}; 
+};

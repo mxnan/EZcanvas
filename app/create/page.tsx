@@ -232,7 +232,7 @@ function CreateApp() {
       <div className="min-h-screen px-4 lg:px-8 space-y-6 pb-24">
         {/* Upload Section */}
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
-          <h1 className="text-4xl text-start font-extrabold">
+          <h1 className="text-4xl text-start font-bold">
             Create Your GIF
           </h1>
           <DropdownMenu>
@@ -246,7 +246,7 @@ function CreateApp() {
                 {loading ? (
                   <>
                     Processing ...
-                    <Loader className="animate-spin" />
+                    <Loader className="animate-spin " />
                   </>
                 ) : (
                   <>
@@ -266,7 +266,7 @@ function CreateApp() {
                   className="text-lg cursor-pointer font-extrabold"
                   onClick={() => setIsUnsplash(true)}
                 >
-                  <ImageDownIcon className="h-10 w-10 stroke-[2px]" /> from
+                  <ImageDownIcon className="h-10 w-10 stroke-[2px] text-orange-700 dark:text-yellow-500" /> from
                   Unsplash
                 </button>
               </DropdownMenuItem>
@@ -275,7 +275,7 @@ function CreateApp() {
                   className="text-lg cursor-pointer font-extrabold"
                   onClick={() => document.getElementById("fileInput")?.click()}
                 >
-                  <MonitorSmartphone className="h-10 w-10 stroke-[2px]" /> from
+                  <MonitorSmartphone className="h-10 w-10 stroke-[2px] text-orange-700 dark:text-yellow-500" /> from
                   Device
                 </button>
               </DropdownMenuItem>
