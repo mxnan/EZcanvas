@@ -8,6 +8,7 @@ import { StoreProvider } from "@/providers/store-provider";
 import { siteConfig } from "@/lib/config";
 import { Jura } from "next/font/google";
 import Footer from "@/components/nav/footer";
+import { CSPostHogProvider } from "@/providers/post-hog-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -78,26 +79,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          "relative antialiased font-sans scrollbar-hide",
-          fontsans.variable
-        )}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
+      <CSPostHogProvider>
+        <body
+          className={cn(
+            "relative antialiased font-sans scrollbar-hide",
+            fontsans.variable
+          )}
         >
-          <StoreProvider>
-            <Navbar />
-            {children}
-            <Footer />
-            <Toaster position="top-right" />
-          </StoreProvider>
-        </ThemeProvider>
-      </body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <StoreProvider>
+              <Navbar />
+              {children}
+              <Footer />
+              <Toaster position="top-right" />
+            </StoreProvider>
+          </ThemeProvider>
+        </body>
+      </CSPostHogProvider>
     </html>
   );
 }
