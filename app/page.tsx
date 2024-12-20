@@ -26,6 +26,8 @@ export default function Home() {
         <Image
           src="/static/chillguy.gif"
           alt="hero"
+          priority
+          unoptimized
           width={500}
           height={350}
           className="ring-2 my-6 ring-muted-foreground mx-auto rounded-xl"
@@ -59,6 +61,7 @@ export default function Home() {
               like . Any place you share an image and write some caption or text
               , you can just create a GIF with text animating in it .
             </p>
+            <p></p>
             <p className="font-semibold">
               Sharing all progress on X :{" "}
               <a

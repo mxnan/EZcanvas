@@ -9,8 +9,8 @@ export default function PrivacyPolicy() {
           solely used to generate your GIFs and improve the app experience.
         </p>
         <p className="mt-4">
-          I do not share or sell your data to third parties. For questions,
-          please contact me at{" "}
+          I do not share or sell your data to third parties.
+          <br /> For questions, please contact me at{" "}
           <a href="mailto:work.manannegi@gmail.com" className="text-blue-500">
             work.manannegi@gmail.com
           </a>{" "}
