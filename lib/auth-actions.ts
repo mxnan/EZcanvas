@@ -2,7 +2,6 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-
 export async function signout() {
   try {
     const supabase = await createClient();
@@ -10,13 +9,17 @@ export async function signout() {
     if (error) throw error;
     return true;
   } catch (error) {
-    console.error('Sign out error:', error);
+    console.error("Sign out error:", error);
 
     return false;
   }
 }
 
 export async function signInWithGoogle(): Promise<{ url: string } | null> {
+  const isProduction = process.env.NEXT_PUBLIC_NODE_ENV === "prod";
+  const redirectTo = isProduction
+    ? process.env.NEXT_PUBLIC_BUILD_ENV // Production URL
+    : process.env.NEXT_PUBLIC_DEV_ENV; // Development URL
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -26,18 +29,18 @@ export async function signInWithGoogle(): Promise<{ url: string } | null> {
         //   access_type: "offline",
         //   prompt: "consent",
         // },
-        redirectTo: `https://image-text-gif.vercel.app/create`,
+        redirectTo: redirectTo,
       },
     });
 
     if (error) {
-      console.error('Auth error:', error);
+      console.error("Auth error:", error);
       return null;
     }
 
     return { url: data.url };
   } catch (error) {
-    console.error('Sign in error:', error);
+    console.error("Sign in error:", error);
     return null;
   }
 }
