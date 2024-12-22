@@ -33,6 +33,7 @@ export default function Footer() {
             <ArrowUpRight className="h-4 w-4 group-hover:rotate-45 transition-transform ease-in-out duration-300" />
           </Link>
         ))}
+        <p className="text-sm text-muted-foreground mt-8">New Delhi, India</p>
       </div>
     </footer>
   );
