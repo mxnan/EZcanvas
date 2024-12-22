@@ -16,10 +16,10 @@ export async function signout() {
 }
 
 export async function signInWithGoogle(): Promise<{ url: string } | null> {
-  const isProduction = process.env.NEXT_PUBLIC_NODE_ENV === "prod";
+  const isProduction = process.env.NEXT_PUBLIC_NODE_ENV! === "prod";
   const redirectTo = isProduction
-    ? process.env.NEXT_PUBLIC_BUILD_ENV // Production URL
-    : process.env.NEXT_PUBLIC_DEV_ENV; // Development URL
+    ? process.env.NEXT_PUBLIC_BUILD_ENV! // Production URL
+    : process.env.NEXT_PUBLIC_DEV_ENV!; // Development URL
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
