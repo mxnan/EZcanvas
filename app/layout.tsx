@@ -8,7 +8,8 @@ import { StoreProvider } from "@/providers/store-provider";
 import { siteConfig } from "@/lib/config";
 import { Jura } from "next/font/google";
 import Footer from "@/components/nav/footer";
-import { CSPostHogProvider } from "@/providers/post-hog-provider";
+import { Head } from "next/document";
+// import { CSPostHogProvider } from "@/providers/post-hog-provider"; posthog off due to hydration error in dev mode
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -77,30 +78,42 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isDev = process.env.NEXT_PUBLIC_NODE_ENV === "dev";
   return (
     <html lang="en" suppressHydrationWarning>
-      <CSPostHogProvider>
-        <body
-          className={cn(
-            "relative antialiased font-sans scrollbar-hide",
-            fontsans.variable
-          )}
+      <head>
+        {/* Paste React Scan Script tag in your Nextjs App*/}
+        {isDev && (
+          <script
+            key="react-scan"
+            src="https://unpkg.com/react-scan/dist/auto.global.js"
+            async={false}
+            // strategy="beforeInteractive"
+          />
+        )}
+      </head>
+      {/* <CSPostHogProvider> */}
+      <body
+        className={cn(
+          "relative antialiased font-sans scrollbar-hide",
+          fontsans.variable
+        )}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
         >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <StoreProvider>
-              <Navbar />
-              {children}
-              <Footer />
-              <Toaster position="top-right" />
-            </StoreProvider>
-          </ThemeProvider>
-        </body>
-      </CSPostHogProvider>
+          <StoreProvider>
+            <Navbar />
+            {children}
+            <Footer />
+            <Toaster position="top-right" />
+          </StoreProvider>
+        </ThemeProvider>
+      </body>
+      {/* </CSPostHogProvider> */}
     </html>
   );
 }
