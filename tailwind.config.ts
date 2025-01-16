@@ -1,23 +1,18 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+export default {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
-      aspectRatio: {
-        'mobile': '9 / 16'
-      },
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        // mono: ["var(--font-mono)"],
+        sans: "var(--font-sans)",
+        mono: "var(--font-mono)",
       },
-      /////////////////////// shadcn ////////////////// ...
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -65,9 +60,8 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      ///////////////////////////////////////////////////
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
-};
-export default config;
+} satisfies Config;
