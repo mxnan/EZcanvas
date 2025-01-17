@@ -1,28 +1,42 @@
 // src/context/CanvasContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 interface CanvasOptions {
   width: number;
   height: number;
-  backgroundColor: string;
 }
 
 interface CanvasContextType {
   canvasOptions: CanvasOptions;
   setCanvasOptions: React.Dispatch<React.SetStateAction<CanvasOptions>>;
+  zoomLevel: number;
+  setZoomLevel: (zoom: number) => void;
+  handleResize: () => void;
 }
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
 export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [canvasOptions, setCanvasOptions] = useState<CanvasOptions>({
-    width: 800,
-    height: 600,
-    backgroundColor: "#ffffff",
+    width: window.innerWidth,
+    height: window.innerHeight,
   });
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  
+  // Handle window resize
+  const handleResize = () => {
+    setCanvasOptions({ width: window.innerWidth, height: window.innerHeight });
+  };
+
+  // Set up event listener for window resize
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Set initial size
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <CanvasContext.Provider value={{ canvasOptions, setCanvasOptions }}>
+    <CanvasContext.Provider value={{ canvasOptions, setCanvasOptions, zoomLevel, setZoomLevel, handleResize }}>
       {children}
     </CanvasContext.Provider>
   );
