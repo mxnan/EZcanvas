@@ -1,67 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { createContext, useContext, useState } from 'react';
+// src/context/ObjectContext.tsx
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
-export interface CanvasObject {
+interface ObjectType {
   id: string;
-  type: string;
-  x: number;
-  y: number;
-  radius?: number; // Optional for circles
-  width?: number; // Optional for rectangles and triangles
-  height?: number; // Optional for rectangles and triangles
-  text?: string; // Optional for text objects
-  fontSize?: number; // Optional for text objects
-  zIndex: number;
-  rotation?: number; // Add rotation property
+  type: string; // e.g., "shape", "image", "text", etc.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties: any; // Define a more specific type based on your needs
 }
 
 interface ObjectContextType {
-  objects: CanvasObject[];
-  setObjects: React.Dispatch<React.SetStateAction<CanvasObject[]>>;
-  addObject: (object: CanvasObject) => void;
-  removeObject: (id: string) => void;
-  getNextZIndex: () => number;
+  objects: ObjectType[];
+  setObjects: React.Dispatch<React.SetStateAction<ObjectType[]>>;
 }
 
 const ObjectContext = createContext<ObjectContextType | undefined>(undefined);
 
-export const ObjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [objects, setObjects] = useState<CanvasObject[]>([]);
-
-  const getNextZIndex = () => objects.length;
-
-  const addObject = (object: CanvasObject) => {
-    const newObject = {
-      ...object,
-      zIndex: object.zIndex ?? getNextZIndex(),
-    };
-    console.log('Adding object:', newObject);
-    setObjects(prevObjects => [...prevObjects, newObject]);
-  };
-
-  const removeObject = (id: string) => {
-    console.log('Removing object with ID:', id);
-    setObjects(prevObjects => prevObjects.filter(obj => obj.id !== id));
-  };
+export const ObjectProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [objects, setObjects] = useState<ObjectType[]>([]);
 
   return (
-    <ObjectContext.Provider value={{ 
-      objects,
-      setObjects, 
-      addObject, 
-      removeObject,
-      getNextZIndex 
-    }}>
+    <ObjectContext.Provider value={{ objects, setObjects }}>
       {children}
     </ObjectContext.Provider>
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useObjectContext = () => {
+export const useObjects = (): ObjectContextType => {
   const context = useContext(ObjectContext);
   if (!context) {
-    throw new Error('useObjectContext must be used within an ObjectProvider');
+    throw new Error("useObjects must be used within an ObjectProvider");
   }
   return context;
 };

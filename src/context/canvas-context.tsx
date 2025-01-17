@@ -1,50 +1,37 @@
-import Konva from 'konva';
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+// src/context/CanvasContext.tsx
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
-// Define the shape of your context
-interface CanvasContextType {
-  zoomLevel: number;
-  setZoomLevel: (zoom: number) => void;
-  stageRef: React.RefObject<Konva.Stage>;
-  handleResize: () => void; // Add handleResize to the context
+interface CanvasOptions {
+  width: number;
+  height: number;
+  backgroundColor: string;
 }
 
-// Create the context
+interface CanvasContextType {
+  canvasOptions: CanvasOptions;
+  setCanvasOptions: React.Dispatch<React.SetStateAction<CanvasOptions>>;
+}
+
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
-// Create a provider component
-export const CanvasProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const stageRef = useRef<Konva.Stage | null>(null);
-
-  // Handle window resize
-  const handleResize = () => {
-    if (stageRef.current) {
-      stageRef.current.width(window.innerWidth);
-      stageRef.current.height(window.innerHeight);
-    }
-  };
-
-  // Set up event listener for window resize
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Set initial size
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [canvasOptions, setCanvasOptions] = useState<CanvasOptions>({
+    width: 800,
+    height: 600,
+    backgroundColor: "#ffffff",
+  });
 
   return (
-    <CanvasContext.Provider value={{ zoomLevel, setZoomLevel, stageRef, handleResize }}>
+    <CanvasContext.Provider value={{ canvasOptions, setCanvasOptions }}>
       {children}
     </CanvasContext.Provider>
   );
 };
 
-// Custom hook to use the Canvas context
-// eslint-disable-next-line react-refresh/only-export-components
-export const useCanvasContext = () => {
+export const useCanvas = (): CanvasContextType => {
   const context = useContext(CanvasContext);
   if (!context) {
-    throw new Error('useCanvasContext must be used within a CanvasProvider');
+    throw new Error("useCanvas must be used within a CanvasProvider");
   }
   return context;
 };
