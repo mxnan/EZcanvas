@@ -7,17 +7,59 @@ const Elements: React.FC = () => {
   const { addAction } = useHistoryContext();
 
   const handleAddShape = (shape: string) => {
-    const newObject = {
-      id: `${shape}_${Date.now()}`,
-      type: shape,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      radius: 30,
-      width: 60,
-      height: 40,
-      text: 'Sample Text',
-      zIndex: getNextZIndex(),
-    };
+    let newObject;
+
+    switch (shape) {
+      case 'circle':
+        newObject = {
+          id: `circle_${Date.now()}`,
+          type: 'circle',
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          radius: 50, // Default radius for circles
+          zIndex: getNextZIndex(),
+        };
+        break;
+
+      case 'rectangle':
+        newObject = {
+          id: `rectangle_${Date.now()}`,
+          type: 'rectangle',
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          width: 100, // Default width for rectangles
+          height: 100, // Default height for rectangles
+          zIndex: getNextZIndex(),
+        };
+        break;
+
+      case 'triangle':
+        newObject = {
+          id: `triangle_${Date.now()}`,
+          type: 'triangle',
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          width: 100, // Default width for triangles
+          height: 100, // Default height for triangles
+          zIndex: getNextZIndex(),
+        };
+        break;
+
+      case 'text':
+        newObject = {
+          id: `text_${Date.now()}`,
+          type: 'text',
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          text: 'Hello', // Default text
+          fontSize: 40, // Default font size
+          zIndex: getNextZIndex(),
+        };
+        break;
+
+      default:
+        return; // Exit if shape type is not recognized
+    }
 
     addObject(newObject);
     addAction({ type: 'add', object: newObject });

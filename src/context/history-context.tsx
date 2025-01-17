@@ -1,22 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState } from 'react';
-import { useObjectContext } from './object-context'; // Import the ObjectContext
+import { CanvasObject, useObjectContext } from './object-context'; // Import the ObjectContext
 
 // Define types for our history management
-interface CanvasObject {
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  radius?: number;
-  width?: number;
-  height?: number;
-  text?: string;
-  zIndex: number;
-}
 
 interface HistoryAction {
-  type: 'add' | 'remove';
+  type: 'add' | 'remove' ;
   object: CanvasObject;
 }
 

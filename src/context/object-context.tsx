@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useContext, useState } from 'react';
 
-interface CanvasObject {
+export interface CanvasObject {
   id: string;
   type: string;
   x: number;
   y: number;
-  radius?: number;
-  width?: number;
-  height?: number;
-  text?: string;
+  radius?: number; // Optional for circles
+  width?: number; // Optional for rectangles and triangles
+  height?: number; // Optional for rectangles and triangles
+  text?: string; // Optional for text objects
+  fontSize?: number; // Optional for text objects
   zIndex: number;
+  rotation?: number; // Add rotation property
 }
 
 interface ObjectContextType {
   objects: CanvasObject[];
+  setObjects: React.Dispatch<React.SetStateAction<CanvasObject[]>>;
   addObject: (object: CanvasObject) => void;
   removeObject: (id: string) => void;
   getNextZIndex: () => number;
@@ -43,7 +46,8 @@ export const ObjectProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   return (
     <ObjectContext.Provider value={{ 
-      objects, 
+      objects,
+      setObjects, 
       addObject, 
       removeObject,
       getNextZIndex 
