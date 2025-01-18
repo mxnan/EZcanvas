@@ -64,12 +64,27 @@ const Canvas: React.FC = () => {
     };
   }, []);
 
+  const addRectangle = () => {
+    const rect = new fabric.Rect({
+      left: 100,
+      top: 100,
+      fill: 'red',
+      width: 50,
+      height: 50,
+    });
+    fabricCanvasRef.current?.add(rect);
+    fabricCanvasRef.current?.requestRenderAll(); // Ensure the canvas is rendered after adding the object
+  };
+
   return (
     <>
       <canvas
         ref={canvasRef}
-        className="z-0 rounded-lg shadow-xl w-full h-full"
+        className="z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
       />
+      <button onClick={addRectangle} className="fixed top-4 left-4">
+        rect
+      </button>
       <div className="absolute bottom-4 right-4 flex space-x-2">
         <span className="text-white ml-4">Zoom: {zoomLevel}x</span>
       </div>
