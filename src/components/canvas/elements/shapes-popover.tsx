@@ -6,16 +6,29 @@ import {
 } from "@/components/ui/popover";
 import { fabric } from "fabric";
 import { Button } from "@/components/ui/button";
-import { Circle,  RectangleEllipsis,  RectangleHorizontal, Shapes, Star, Triangle } from "lucide-react";
+import {
+  Circle,
+  RectangleEllipsis,
+  RectangleHorizontal,
+  Shapes,
+  Star,
+  Triangle,
+} from "lucide-react";
+import { useObjects } from "@/context/object-context";
+import { generateRandomId } from "@/lib/utils";
 
 interface ShapesPopoverProps {
   fabricCanvasRef: React.RefObject<fabric.Canvas | null>;
 }
 
 const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
+  const { addObject } = useObjects(); // Accessing the context to add objects
+
   const addShape = (shape: string) => {
     if (fabricCanvasRef.current) {
       let newShape;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let objectType: { id: string; type: string; properties: any }; // Define the objectType
 
       switch (shape) {
         case "rectangle":
@@ -57,28 +70,15 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
             selectable: true,
           });
           break;
-        case "star":
-          newShape = new fabric.Polygon(
-            [
-              { x: 0, y: -50 },
-              { x: 20, y: -20 },
-              { x: 50, y: -20 },
-              { x: 30, y: 0 },
-              { x: 40, y: 50 },
-              { x: 0, y: 20 },
-              { x: -40, y: 50 },
-              { x: -30, y: 0 },
-              { x: -50, y: -20 },
-              { x: -20, y: -20 },
-            ],
-            {
+          case "star":
+          {  const starPath = createStarPath(5, 20, 50); // 5 points, inner radius 20, outer radius 50
+            newShape = new fabric.Path(starPath, {
               left: 100,
               top: 100,
               fill: "orange",
               selectable: true,
-            }
-          );
-          break;
+            });}
+            break;
         default:
           console.warn("Unknown shape type");
           return; // Exit if the shape type is unknown
@@ -88,6 +88,15 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
         fabricCanvasRef.current.add(newShape);
         fabricCanvasRef.current.setActiveObject(newShape);
         fabricCanvasRef.current.renderAll();
+        // Create ObjectType with a random ID
+        objectType = {
+          id: generateRandomId(),
+          type: "shape",
+          properties: newShape,
+        }; // Create ObjectType
+        console.log(objectType)
+        addObject(objectType); // Add the new shape to the context
+      
       }
     }
   };
@@ -114,14 +123,13 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
             onClick={() => addShape("circle")}
           >
             <Circle />
-            
           </Button>
           <Button
             variant={"default"}
             size={"icon"}
             onClick={() => addShape("ellipse")}
           >
-            <RectangleEllipsis /> 
+            <RectangleEllipsis />
           </Button>
           <Button
             variant={"default"}
@@ -144,3 +152,20 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
 };
 
 export default ShapesPopover;
+
+export const createStarPath = (
+  points: number,
+  inner: number,
+  outer: number
+): string => {
+  let path = "M ";
+  for (let i = 0; i < points * 2; i++) {
+    const radius = i % 2 === 0 ? outer : inner;
+    const angle = (i * Math.PI) / points;
+    const x = radius * Math.sin(angle);
+    const y = radius * Math.cos(angle);
+    path += `${x},${y} `;
+  }
+  path += "z";
+  return path;
+};

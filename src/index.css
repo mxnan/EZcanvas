@@ -65,4 +65,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  .canvas-background {
+    background-color: "black";
+    background-image: radial-gradient(rgba(70, 70, 70, 0.171) 2px, transparent 0);
+    background-size: 30px 30px;
+    background-position: -5px -5px;
+  }
 }
