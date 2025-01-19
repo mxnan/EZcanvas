@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { fabric } from "fabric";
 import { useCanvas } from "@/context/canvas-context";
+import { Button } from "../ui/button";
+import { LucideZoomIn } from "lucide-react";
+import Elements from "./elements/elements";
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,14 +49,14 @@ const Canvas: React.FC = () => {
   }, [canvasOptions, setZoomLevel]);
 
   // Update canvas size on window resize
-  const updateCanvasSize = () => {
+  const updateCanvasSize = React.useCallback(() => {
     if (canvasRef.current) {
       const width = window.innerWidth;
       const height = window.innerHeight;
       setCanvasOptions({ width, height });
       fabricCanvasRef.current?.setDimensions({ width, height });
     }
-  };
+  }, [setCanvasOptions]);
 
   useEffect(() => {
     updateCanvasSize(); // Set initial size
@@ -62,19 +65,21 @@ const Canvas: React.FC = () => {
     return () => {
       window.removeEventListener("resize", updateCanvasSize); // Clean up listener
     };
-  }, []);
+  }, [updateCanvasSize]);
 
-  const addRectangle = () => {
-    const rect = new fabric.Rect({
-      left: 100,
-      top: 100,
-      fill: 'red',
-      width: 50,
-      height: 50,
-    });
-    fabricCanvasRef.current?.add(rect);
-    fabricCanvasRef.current?.requestRenderAll(); // Ensure the canvas is rendered after adding the object
-  };
+  // base canvas code /////////////////////////
+
+  // const addRectangle = () => {
+  //   const rect = new fabric.Rect({
+  //     left: 100,
+  //     top: 100,
+  //     fill: "red",
+  //     width: 50,
+  //     height: 50,
+  //   });
+  //   fabricCanvasRef.current?.add(rect);
+  //   fabricCanvasRef.current?.requestRenderAll(); // Ensure the canvas is rendered after adding the object
+  // };
 
   return (
     <>
@@ -82,12 +87,14 @@ const Canvas: React.FC = () => {
         ref={canvasRef}
         className="z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
       />
-      <button onClick={addRectangle} className="fixed top-4 left-4">
-        rect
-      </button>
-      <div className="absolute bottom-4 right-4 flex space-x-2">
-        <span className="text-white ml-4">Zoom: {zoomLevel}x</span>
-      </div>
+       <Elements fabricCanvasRef={fabricCanvasRef} /> {/* Pass the ref as a prop */}
+      <Button
+        variant={"outline"}
+        className="fixed bottom-2 right-2"
+        size={"sm"}
+      >
+        <LucideZoomIn /> {zoomLevel.toFixed(2)}x
+      </Button>
     </>
   );
 };
