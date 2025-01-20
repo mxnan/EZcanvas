@@ -25,6 +25,7 @@ const Elements: React.FC<ElementsProps> = ({ fabricCanvasRef }) => {
         top: 100,
         fontSize: 40,
         fill: "white",
+        
         // editable: true, // Make the text editable
       }) as CustomIText; // Type assertion to CustomIText
 

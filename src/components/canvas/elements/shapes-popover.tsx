@@ -98,7 +98,6 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
           type: "shape",
           properties: newShape,
         }; // Create ObjectType
-        console.log(objectType);
         addObject(objectType); // Add the new shape to the context
       }
     }

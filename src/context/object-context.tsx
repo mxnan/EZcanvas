@@ -12,6 +12,7 @@ interface ObjectContextType {
   objects: ObjectType[];
   setObjects: React.Dispatch<React.SetStateAction<ObjectType[]>>;
   addObject: (object: ObjectType) => void;
+  removeObject: (id: string) => void; 
   clearObjects: () => void;
 }
 
@@ -24,12 +25,20 @@ export const ObjectProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setObjects((prev) => [...prev, object]);
   };
 
+  const removeObject = (id: string) => {
+    setObjects((prev) => prev.filter((object) => object.id !== id));
+  };
+
+
   const clearObjects = () => {
     setObjects([]);
   };
 
+  
+
   return (
-    <ObjectContext.Provider value={{ objects, setObjects, addObject, clearObjects }}>
+    <ObjectContext.Provider value={{ objects, setObjects, addObject, removeObject, clearObjects
+     }}>
       {children}
     </ObjectContext.Provider>
   );

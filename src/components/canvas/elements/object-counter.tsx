@@ -11,7 +11,6 @@ interface ObjectCounterProps {
 
 const ObjectCounter: React.FC<ObjectCounterProps> = ({ fabricCanvasRef }) => {
   const { objects } = useObjects(); // Access the objects from context
-  console.log(objects);
   const handleObjectClick = (objectId: string) => {
     const object = fabricCanvasRef.current
       ?.getObjects()

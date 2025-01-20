@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { HardDriveDownload, LucideZoomIn } from "lucide-react";
 import Elements from "./elements/elements";
 import Loader from "../ui/loader";
+import SharedControls from "./controls/shared-controls";
 // Dynamically import ObjectCounter
 const DynamicObjectCounter = lazy(() => import("./elements/object-counter"));
 
@@ -30,6 +31,7 @@ const Canvas: React.FC = () => {
       transparentCorners: false,
       hasRotatingPoint: true,
       lockScalingFlip: true,
+    
     });
 
     // Initialize Fabric.js canvas
@@ -168,10 +170,15 @@ const Canvas: React.FC = () => {
         ref={canvasRef}
         className="canvas-background z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
       />
+      <>
+
       <Elements fabricCanvasRef={fabricCanvasRef} />
       <Suspense fallback={<Loader />}>
         <DynamicObjectCounter fabricCanvasRef={fabricCanvasRef} />
       </Suspense>
+      <SharedControls fabricCanvasRef={fabricCanvasRef} />
+
+      </>
       <Button
         variant={"outline"}
         className="fixed bottom-2 right-2"
