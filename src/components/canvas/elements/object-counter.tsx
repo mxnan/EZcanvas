@@ -1,7 +1,7 @@
 import React from "react";
 import { useObjects } from "@/context/object-context";
 import { fabric } from "fabric";
-import { Layers, Shapes, Type } from "lucide-react"; // Import icons for shapes
+import { FileImage, Layers, Shapes, Type } from "lucide-react"; // Import icons for shapes
 import { Button } from "../../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 
@@ -28,6 +28,7 @@ const ObjectCounter: React.FC<ObjectCounterProps> = ({ fabricCanvasRef }) => {
   const iconMap: { [key: string]: React.ReactNode } = {
     shape: <Shapes />,
     text: <Type />,
+    image: <FileImage />,
     // Add more mappings as needed
   };
 

@@ -2,10 +2,11 @@ import React from "react";
 import { useObjects } from "@/context/object-context";
 import { fabric } from "fabric";
 import { Button } from "@/components/ui/button";
-import { CircleX, Type } from "lucide-react";
+import { CircleX, ImagePlus, Type } from "lucide-react";
 import ShapesPopover from "./shapes-popover";
 import { generateRandomId } from "@/lib/utils";
 import { CustomIText } from "@/types/object"; // Import the custom type
+import ImageDialog from "./image-dialog";
 // import SvgPopover from "./svg-popover";
 
 interface ElementsProps {
@@ -14,6 +15,8 @@ interface ElementsProps {
 
 const Elements: React.FC<ElementsProps> = ({ fabricCanvasRef }) => {
   const { clearObjects, addObject } = useObjects();
+  // Inside your Elements component:
+  const [isImageDialogOpen, setIsImageDialogOpen] = React.useState(false);
 
   const addText = () => {
     if (fabricCanvasRef.current) {
@@ -50,21 +53,35 @@ const Elements: React.FC<ElementsProps> = ({ fabricCanvasRef }) => {
   };
 
   return (
-    <div className="absolute top-2 left-2 p-1 flex items-center justify-center bg-neutral-800 rounded-xl shadow">
-      <ShapesPopover fabricCanvasRef={fabricCanvasRef} />
-      {/* <SvgPopover fabricCanvasRef={fabricCanvasRef} /> */}
-      <Button variant={"outline"} size={"icon"} onClick={addText}>
-        <Type />
-      </Button>
-      <Button
-        onClick={clearCanvas}
-        variant={"outline"}
-        size={"icon"}
-        className="hover:bg-red-500/60"
-      >
-        <CircleX />
-      </Button>
-    </div>
+    <>
+      <div className="absolute top-2 left-2 p-1 flex items-center justify-center bg-neutral-800 rounded-xl shadow">
+        <ShapesPopover fabricCanvasRef={fabricCanvasRef} />
+        <Button
+          variant={"outline"}
+          size={"icon"}
+          onClick={() => setIsImageDialogOpen(true)}
+        >
+          <ImagePlus />
+        </Button>
+        <Button variant={"outline"} size={"icon"} onClick={addText}>
+          <Type />
+        </Button>
+        <Button
+          onClick={clearCanvas}
+          variant={"outline"}
+          size={"icon"}
+          className="hover:bg-red-500/60"
+        >
+          <CircleX />
+        </Button>
+      </div>
+      <ImageDialog
+        isOpen={isImageDialogOpen}
+        onClose={() => setIsImageDialogOpen(false)}
+        fabricCanvasRef={fabricCanvasRef}
+        addObject={addObject}
+      />
+    </>
   );
 };
 

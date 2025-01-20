@@ -4,8 +4,9 @@ import { useCanvas } from "@/context/canvas-context";
 import { Button } from "../ui/button";
 import { HardDriveDownload, LucideZoomIn } from "lucide-react";
 import Elements from "./elements/elements";
+import Loader from "../ui/loader";
 // Dynamically import ObjectCounter
-const DynamicObjectCounter = lazy(() => import("./objects/object-counter"));
+const DynamicObjectCounter = lazy(() => import("./elements/object-counter"));
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -13,6 +14,7 @@ const Canvas: React.FC = () => {
     useCanvas();
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
 
+  // uef for canvas init
   useEffect(() => {
     if (!canvasRef.current) return;
     // Set default control properties for all objects
@@ -43,8 +45,8 @@ const Canvas: React.FC = () => {
       zoom *= 0.999 ** delta;
 
       // Limit zoom levels
-      const minZoom = 0.5;
-      const maxZoom = 2;
+      const minZoom = 0.2;
+      const maxZoom = 2.5;
       zoom = Math.max(minZoom, Math.min(maxZoom, zoom));
 
       // Zoom to the mouse position
@@ -76,6 +78,7 @@ const Canvas: React.FC = () => {
     }
   }, [setCanvasOptions]);
 
+  // uef for canvas size
   useEffect(() => {
     updateCanvasSize(); // Set initial size
     window.addEventListener("resize", updateCanvasSize); // Update size on resize
@@ -84,6 +87,64 @@ const Canvas: React.FC = () => {
       window.removeEventListener("resize", updateCanvasSize); // Clean up listener
     };
   }, [updateCanvasSize]);
+
+  // // uef for drag and drop
+  // useEffect(() => {
+  //   const canvas = fabricCanvasRef.current?.getElement().parentElement;
+  //   if (!canvas) return;
+
+  //   const handleDragOver = (e: DragEvent) => {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //   };
+
+  //   const handleDrop = (e: DragEvent) => {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+
+  //     const files = e.dataTransfer?.files;
+  //     if (files && files[0] && fabricCanvasRef.current) {
+  //       const file = files[0];
+  //       if (!file.type.startsWith('image/')) return;
+
+  //       const reader = new FileReader();
+  //       reader.onload = (event) => {
+  //         fabric.Image.fromURL(event.target?.result as string, (img) => {
+  //           const fabricImage = img as unknown as CustomFabricObject;
+  //           fabricImage.id = generateRandomId();
+
+  //           // Position the image where it was dropped
+  //           const canvasOffset = canvas.getBoundingClientRect();
+  //           const zoom = fabricCanvasRef.current?.getZoom() || 1;
+  //           fabricImage.left = (e.clientX - canvasOffset.left) / zoom;
+  //           fabricImage.top = (e.clientY - canvasOffset.top) / zoom;
+
+  //           fabricImage.scaleToWidth(200); // Set default width
+
+  //           fabricCanvasRef.current?.add(fabricImage);
+  //           fabricCanvasRef.current?.setActiveObject(fabricImage);
+  //           fabricCanvasRef.current?.renderAll();
+
+  //           // Add to context
+  //           addObject({
+  //             id: fabricImage.id,
+  //             type: "image",
+  //             properties: fabricImage,
+  //           });
+  //         });
+  //       };
+  //       reader.readAsDataURL(file);
+  //     }
+  //   };
+
+  //   canvas.addEventListener('dragover', handleDragOver);
+  //   canvas.addEventListener('drop', handleDrop);
+
+  //   return () => {
+  //     canvas.removeEventListener('dragover', handleDragOver);
+  //     canvas.removeEventListener('drop', handleDrop);
+  //   };
+  // }, [addObject]);
 
   // base canvas code /////////////////////////
 
@@ -108,7 +169,7 @@ const Canvas: React.FC = () => {
         className="canvas-background z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
       />
       <Elements fabricCanvasRef={fabricCanvasRef} />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loader />}>
         <DynamicObjectCounter fabricCanvasRef={fabricCanvasRef} />
       </Suspense>
       <Button
