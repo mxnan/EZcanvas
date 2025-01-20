@@ -72,3 +72,13 @@
     background-position: -5px -5px;
   }
 }
+
+/* Hide scrollbar for all elements */
+::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+body {
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+}

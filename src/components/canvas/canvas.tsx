@@ -1,9 +1,11 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, lazy, Suspense } from "react";
 import { fabric } from "fabric";
 import { useCanvas } from "@/context/canvas-context";
 import { Button } from "../ui/button";
 import { HardDriveDownload, LucideZoomIn } from "lucide-react";
 import Elements from "./elements/elements";
+// Dynamically import ObjectCounter
+const DynamicObjectCounter = lazy(() => import("./objects/object-counter"));
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,13 +108,9 @@ const Canvas: React.FC = () => {
         className="canvas-background z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
       />
       <Elements fabricCanvasRef={fabricCanvasRef} />
-      <Button
-        variant={"outline"}
-        className="fixed bottom-2 left-2"
-        size={"sm"}
-      >
-        show object count here 
-      </Button>
+      <Suspense fallback={<div>Loading...</div>}>
+        <DynamicObjectCounter fabricCanvasRef={fabricCanvasRef} />
+      </Suspense>
       <Button
         variant={"outline"}
         className="fixed bottom-2 right-2"

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CircleX, Type } from "lucide-react";
 import ShapesPopover from "./shapes-popover";
 import { generateRandomId } from "@/lib/utils";
+import { CustomIText } from "@/types/object"; // Import the custom type
 // import SvgPopover from "./svg-popover";
 
 interface ElementsProps {
@@ -22,17 +23,21 @@ const Elements: React.FC<ElementsProps> = ({ fabricCanvasRef }) => {
         fontSize: 40,
         fill: "white",
         // editable: true, // Make the text editable
-      });
+      }) as CustomIText; // Type assertion to CustomIText
+
+      // Set a unique ID for the text object
+      text.id = generateRandomId(); // Now this works without type errors
+
       fabricCanvasRef.current.add(text);
       fabricCanvasRef.current.setActiveObject(text);
       fabricCanvasRef.current.renderAll();
-      // Create ObjectType with a random ID
+
+      // Create ObjectType with the new text's ID
       const objectType = {
-        id: generateRandomId(), // Generate a random ID
-        type: "text", // Specify the type as "text"
-        properties: text, // Assign the text object
-      }; // Create ObjectType
-      console.log(objectType);
+        id: text.id, // Use the ID from the text object
+        type: "text",
+        properties: text,
+      };
       addObject(objectType); // Add the new text to the context
     }
   };

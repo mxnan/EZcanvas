@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useObjects } from "@/context/object-context";
 import { generateRandomId } from "@/lib/utils";
+import { CustomFabricObject } from "@/types/object"; // Import the custom type
 
 interface ShapesPopoverProps {
   fabricCanvasRef: React.RefObject<fabric.Canvas | null>;
@@ -26,9 +27,7 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
 
   const addShape = (shape: string) => {
     if (fabricCanvasRef.current) {
-      let newShape;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let objectType: { id: string; type: string; properties: any }; // Define the objectType
+      let newShape: CustomFabricObject; // Use the custom type for shapes
 
       switch (shape) {
         case "rectangle":
@@ -39,7 +38,7 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
             width: 50,
             height: 50,
             selectable: true,
-          });
+          }) as unknown as CustomFabricObject; // Type assertion to CustomFabricObject
           break;
         case "circle":
           newShape = new fabric.Circle({
@@ -48,7 +47,7 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
             radius: 25,
             fill: "blue",
             selectable: true,
-          });
+          }) as unknown as CustomFabricObject; // Type assertion to CustomFabricObject
           break;
         case "ellipse":
           newShape = new fabric.Ellipse({
@@ -58,7 +57,7 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
             ry: 20,
             fill: "green",
             selectable: true,
-          });
+          }) as unknown as CustomFabricObject; // Type assertion to CustomFabricObject
           break;
         case "triangle":
           newShape = new fabric.Triangle({
@@ -68,35 +67,39 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
             height: 50,
             fill: "yellow",
             selectable: true,
-          });
+          }) as unknown as CustomFabricObject; // Type assertion to CustomFabricObject
           break;
-          case "star":
-          {  const starPath = createStarPath(5, 20, 50); // 5 points, inner radius 20, outer radius 50
-            newShape = new fabric.Path(starPath, {
-              left: 100,
-              top: 100,
-              fill: "orange",
-              selectable: true,
-            });}
-            break;
+        case "star": {
+          const starPath = createStarPath(5, 20, 50); // 5 points, inner radius 20, outer radius 50
+          newShape = new fabric.Path(starPath, {
+            left: 100,
+            top: 100,
+            fill: "orange",
+            selectable: true,
+          }) as unknown as CustomFabricObject; // Type assertion to CustomFabricObject
+          break;
+        }
         default:
           console.warn("Unknown shape type");
           return; // Exit if the shape type is unknown
       }
 
       if (newShape) {
+        // Set a unique ID for the new shape
+        newShape.id = generateRandomId(); // Ensure this generates a unique ID
+
         fabricCanvasRef.current.add(newShape);
         fabricCanvasRef.current.setActiveObject(newShape);
         fabricCanvasRef.current.renderAll();
-        // Create ObjectType with a random ID
-        objectType = {
-          id: generateRandomId(),
+
+        // Create ObjectType with the new shape's ID
+        const objectType = {
+          id: newShape.id, // Use the ID from the new shape
           type: "shape",
           properties: newShape,
         }; // Create ObjectType
-        console.log(objectType)
+        console.log(objectType);
         addObject(objectType); // Add the new shape to the context
-      
       }
     }
   };
@@ -152,8 +155,7 @@ const ShapesPopover: React.FC<ShapesPopoverProps> = ({ fabricCanvasRef }) => {
 };
 
 export default ShapesPopover;
-
-export const createStarPath = (
+const createStarPath = (
   points: number,
   inner: number,
   outer: number
