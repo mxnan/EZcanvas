@@ -2,7 +2,7 @@ import React, { useEffect, useRef, lazy, Suspense } from "react";
 import { fabric } from "fabric";
 import { useCanvas } from "@/context/canvas-context";
 import { Button } from "../ui/button";
-import { HardDriveDownload, LucideZoomIn } from "lucide-react";
+import { Focus, HardDriveDownload, LucideZoomIn } from "lucide-react";
 import Elements from "./elements/elements";
 import Loader from "../ui/loader";
 // Dynamically import ObjectCounter
@@ -167,6 +167,37 @@ const Canvas: React.FC = () => {
     }
   };
 
+  // focus on selected object
+  const focusOnSelectedObject = () => {
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
+  
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject) return;
+  
+    // Get the center point of the object
+    const objectCenter = activeObject.getCenterPoint();
+    const zoom = 1; // Set zoom to 1
+  
+    if (canvas.viewportTransform) {
+      // Calculate center of viewport
+      const vpCenter = {
+        x: canvas.getWidth() / 2,
+        y: canvas.getHeight() / 2
+      };
+  
+      // Set zoom first
+      canvas.setZoom(zoom);
+      setZoomLevel(zoom);
+  
+      // Calculate the difference between viewport center and object center
+      canvas.viewportTransform[4] = vpCenter.x - objectCenter.x * zoom;
+      canvas.viewportTransform[5] = vpCenter.y - objectCenter.y * zoom;
+  
+      canvas.renderAll();
+    }
+  };
+
   return (
     <>
       <canvas
@@ -184,13 +215,19 @@ const Canvas: React.FC = () => {
           <ObjSpecificControls fabricCanvasRef={fabricCanvasRef} />
         </Suspense>
       </>
-      <Button
-        variant={"outline"}
-        className="fixed bottom-2 right-2"
-        size={"sm"}
-      >
-        <LucideZoomIn /> {zoomLevel.toFixed(2)}x
-      </Button>
+      <div className="fixed bottom-2 right-2 flex items-center gap-2">
+        <Button
+          variant={"outline"}
+          size={"icon"}
+          onClick={focusOnSelectedObject}
+        >
+          <Focus />
+        </Button>
+        <Button variant={"outline"}>
+          <LucideZoomIn /> {zoomLevel.toFixed(2)}x
+        </Button>
+      </div>
+
       <Button
         variant={"destructive"}
         className="fixed top-2 right-2"
