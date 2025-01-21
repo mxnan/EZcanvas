@@ -5,9 +5,12 @@ import { Button } from "../ui/button";
 import { HardDriveDownload, LucideZoomIn } from "lucide-react";
 import Elements from "./elements/elements";
 import Loader from "../ui/loader";
-import SharedControls from "./controls/shared-controls";
 // Dynamically import ObjectCounter
 const DynamicObjectCounter = lazy(() => import("./elements/object-counter"));
+const SharedControls = lazy(() => import("./controls/shared-controls"));
+const ObjSpecificControls = lazy(
+  () => import("./controls/obj-specific-controls")
+);
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,13 +34,13 @@ const Canvas: React.FC = () => {
       transparentCorners: false,
       hasRotatingPoint: true,
       lockScalingFlip: true,
-    
     });
 
     // Initialize Fabric.js canvas
     fabricCanvasRef.current = new fabric.Canvas(canvasRef.current, {
       width: canvasOptions.width,
       height: canvasOptions.height,
+      preserveObjectStacking: true,
     });
 
     // Handle zoom on mouse wheel
@@ -171,13 +174,15 @@ const Canvas: React.FC = () => {
         className="canvas-background z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
       />
       <>
+        <Elements fabricCanvasRef={fabricCanvasRef} />
+        <Suspense fallback={<Loader />}>
+          <DynamicObjectCounter fabricCanvasRef={fabricCanvasRef} />
+        </Suspense>
 
-      <Elements fabricCanvasRef={fabricCanvasRef} />
-      <Suspense fallback={<Loader />}>
-        <DynamicObjectCounter fabricCanvasRef={fabricCanvasRef} />
-      </Suspense>
-      <SharedControls fabricCanvasRef={fabricCanvasRef} />
-
+        <Suspense fallback={<Loader />}>
+          <SharedControls fabricCanvasRef={fabricCanvasRef} />
+          <ObjSpecificControls fabricCanvasRef={fabricCanvasRef} />
+        </Suspense>
       </>
       <Button
         variant={"outline"}

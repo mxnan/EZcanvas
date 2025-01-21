@@ -43,11 +43,13 @@ const SharedControls: React.FC<SharedControlsProps> = ({ fabricCanvasRef }) => {
 
     // Listen for selection events
     canvas.on("selection:created", updateActiveObject);
+    canvas.on("selection:updated", updateActiveObject); // Listen for updated selection
     canvas.on("selection:cleared", updateActiveObject);
 
     // Clean up event listeners on unmount
     return () => {
       canvas.off("selection:created", updateActiveObject);
+      canvas.off("selection:updated", updateActiveObject); // Clean up updated selection listener
       canvas.off("selection:cleared", updateActiveObject);
     };
   }, [fabricCanvasRef, getActiveObject]);
