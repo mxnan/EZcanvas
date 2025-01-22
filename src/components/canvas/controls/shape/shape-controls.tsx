@@ -2,7 +2,8 @@
 import React from "react";
 import { fabric } from "fabric";
 import { CustomFabricObject } from "@/types/object"; // Import the custom type
-import ColorPicker from "./color-picker";
+import ColorPicker from "../color-picker";
+
 
 interface ShapeControlsProps {
   activeObject: CustomFabricObject | null;

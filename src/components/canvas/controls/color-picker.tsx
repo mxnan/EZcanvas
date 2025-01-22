@@ -60,7 +60,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           type="color"
           value={currentColor}
           onChange={(e) => onChange(e.target.value)}
-          className="hidden"
+          className=""
         />
       </PopoverContent>
     </Popover>

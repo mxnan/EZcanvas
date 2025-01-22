@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import { fabric } from "fabric";
 import { CustomFabricObject } from "@/types/object"; // Import the custom type
 import { motion, AnimatePresence } from "framer-motion";
-import TextControls from "./text-controls";
-import ShapeControls from "./shape-controls";
-import ImageControls from "./image-controls";
+import TextControls from "./text/text-controls";
+import ImageControls from "./image/image-controls";
+import ShapeControls from "./shape/shape-controls";
 
 const ObjSpecificControls: React.FC<{
   fabricCanvasRef: React.RefObject<fabric.Canvas | null>;
