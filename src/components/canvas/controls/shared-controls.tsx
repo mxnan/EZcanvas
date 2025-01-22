@@ -133,7 +133,7 @@ const SharedControls: React.FC<SharedControlsProps> = ({ fabricCanvasRef }) => {
     <AnimatePresence>
       {activeObjectId && (
         <motion.div
-          className="absolute bottom-2 left-[42%]   p-2 bg-neutral-800 rounded-xl shadow flex items-center gap-2"
+          className="fixed bottom-2 left-[42%]   p-2 bg-neutral-800 rounded-xl shadow flex items-center gap-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}

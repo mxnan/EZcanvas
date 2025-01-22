@@ -14,6 +14,7 @@ const ObjSpecificControls: React.FC<{
     null
   );
   const [objectType, setObjectType] = useState<string | null>(null);
+  const [isediting, setIsEditing] = useState(false); // Add isediting state
 
   useEffect(() => {
     const canvas = fabricCanvasRef.current;
@@ -21,6 +22,8 @@ const ObjSpecificControls: React.FC<{
     if (!canvas) return;
 
     const updateActiveObject = () => {
+        // Don't update active object if we're cropping
+        if (isediting) return;
       const obj = canvas.getActiveObject() as CustomFabricObject;
       if (obj) {
         setActiveObject(obj);
@@ -57,7 +60,10 @@ const ObjSpecificControls: React.FC<{
       canvas.off("selection:updated", updateActiveObject); // Clean up updated selection listener
       canvas.off("selection:cleared", updateActiveObject);
     };
-  }, [fabricCanvasRef]);
+  }, [fabricCanvasRef,isediting]);
+
+
+
   const renderControls = () => {
     if (!activeObject) return null;
 
@@ -79,13 +85,18 @@ const ObjSpecificControls: React.FC<{
       case "image":
         return (
           <motion.div
-          key="image-controls"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-        >
-          <ImageControls activeObject={activeObject} fabricCanvasRef={fabricCanvasRef} />
-        </motion.div>
+            key="image-controls"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}    
+          >
+            <ImageControls
+              activeObject={activeObject}
+              fabricCanvasRef={fabricCanvasRef}
+              isediting={isediting} // Pass isediting down
+              setIsEditing={setIsEditing} // Pass down the setter function
+            />
+          </motion.div>
         );
       case "shape":
         return (
@@ -95,7 +106,10 @@ const ObjSpecificControls: React.FC<{
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
           >
-            <ShapeControls activeObject={activeObject} fabricCanvasRef={fabricCanvasRef} />
+            <ShapeControls
+              activeObject={activeObject}
+              fabricCanvasRef={fabricCanvasRef}
+            />
           </motion.div>
         );
       default:
@@ -104,9 +118,10 @@ const ObjSpecificControls: React.FC<{
   };
 
   return (
-    <div className="absolute right-2 top-1/2 transform -translate-y-1/2  bg-neutral-800 rounded-xl shadow">
-   <AnimatePresence mode="wait">
-        {objectType && renderControls()} {/* Only render controls if objectType is set */}
+    <div className="z-[999]">
+      <AnimatePresence mode="wait">
+        {objectType && renderControls()}{" "}
+        {/* Only render controls if objectType is set */}
       </AnimatePresence>
     </div>
   );

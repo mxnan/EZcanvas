@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Blend } from "lucide-react";
 
 interface FilterPickerProps {
   onApplyFilter: (filter: string) => void;
@@ -25,8 +26,8 @@ const FilterPicker: React.FC<FilterPickerProps> = ({ onApplyFilter }) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant={"default"} size={"sm"}>
-          Filters
+        <Button variant={"outline"} size={"icon"}>
+        <Blend />
         </Button>
       </PopoverTrigger>
       <PopoverContent

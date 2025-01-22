@@ -3,19 +3,36 @@ import React from "react";
 import { fabric } from "fabric";
 import { CustomFabricObject } from "@/types/object"; // Import the custom type
 import FilterPicker from "./filter-picker";
+import Cropper from "./crop-controls";
+import { Button } from "@/components/ui/button";
+import { Crop } from "lucide-react";
 
 interface ImageControlsProps {
   activeObject: CustomFabricObject | null;
   fabricCanvasRef: React.RefObject<fabric.Canvas | null>;
+  isediting: boolean; // Accept isediting
+  setIsEditing: (editing: boolean) => void; // Accept setter function
+
 }
 
 const ImageControls: React.FC<ImageControlsProps> = ({
   activeObject,
   fabricCanvasRef,
+  isediting,
+  setIsEditing, // Destructure setter function
 }) => {
+
   if (!activeObject || !(activeObject instanceof fabric.Image)) {
     return null; // Return null if no active image object
   }
+  const handleCropStart = () => {
+    setIsEditing(true); // Set editing state to true
+  };
+
+  const handleCropEnd = () => {
+    setIsEditing(false); // Set editing state to false
+  };
+
 
   const applyFilter = (filter: string) => {
     // Clear existing filters if "None" is selected
@@ -63,12 +80,29 @@ const ImageControls: React.FC<ImageControlsProps> = ({
     fabricCanvasRef.current?.renderAll();
   };
 
-  
   return (
-    <div className="p-2">
+   
+    <>
+    <div className="z-[999] fixed top-1/2 right-2 p-2 flex flex-col gap-2">
       <FilterPicker onApplyFilter={applyFilter} />
-      {/* Add more image controls as needed */}
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleCropStart}
+        disabled={isediting} // Disable button if editing
+      >
+        <Crop className="h-4 w-4" />
+      </Button>
     </div>
+    {isediting && (
+      <Cropper
+        activeObject={activeObject as fabric.Image}
+        fabricCanvasRef={fabricCanvasRef}
+        onFinishCrop={handleCropEnd}
+      />
+    )}
+  </>
+
   );
 };
 

@@ -22,6 +22,7 @@ export const ObjectProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [objects, setObjects] = useState<ObjectType[]>([]);
 
   const addObject = (object: ObjectType) => {
+    console.log(object)
     setObjects((prev) => [...prev, object]);
   };
 

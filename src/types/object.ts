@@ -9,3 +9,6 @@ export interface CustomFabricObject extends fabric.Object {
 export interface CustomIText extends fabric.IText {
   id: string; // Add the id property
 }
+export interface CustomFabricImage extends fabric.Image {
+  id: string; // Add the id property
+}
