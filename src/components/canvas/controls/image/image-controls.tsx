@@ -6,6 +6,7 @@ import FilterPicker from "./filter-picker";
 import Cropper from "./crop-controls";
 import { Button } from "@/components/ui/button";
 import { Crop } from "lucide-react";
+import BgRemoval from "./bg-removal";
 
 interface ImageControlsProps {
   activeObject: CustomFabricObject | null;
@@ -93,6 +94,8 @@ const ImageControls: React.FC<ImageControlsProps> = ({
       >
         <Crop className="h-4 w-4" />
       </Button>
+      <BgRemoval activeObject={activeObject as fabric.Image} fabricCanvasRef={fabricCanvasRef} />
+      
     </div>
     {isediting && (
       <Cropper
