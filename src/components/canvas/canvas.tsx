@@ -12,6 +12,9 @@ const ObjSpecificControls = lazy(
   () => import("./controls/obj-specific-controls")
 );
 
+// Constants for snapping
+// const EDGE_DETECTION = 5; // pixels to snap
+
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { canvasOptions, setCanvasOptions, zoomLevel, setZoomLevel } =
@@ -41,6 +44,7 @@ const Canvas: React.FC = () => {
       width: canvasOptions.width,
       height: canvasOptions.height,
       preserveObjectStacking: true,
+      // selection: false, // Disable group selection
     });
 
     // Handle zoom on mouse wheel
@@ -50,8 +54,8 @@ const Canvas: React.FC = () => {
       zoom *= 0.999 ** delta;
 
       // Limit zoom levels
-      const minZoom = 0.2;
-      const maxZoom = 2.5;
+      const minZoom = 0.1;
+      const maxZoom = 3;
       zoom = Math.max(minZoom, Math.min(maxZoom, zoom));
 
       // Zoom to the mouse position
@@ -67,9 +71,98 @@ const Canvas: React.FC = () => {
       opt.e.stopPropagation();
     });
 
+    const canvas = fabricCanvasRef.current;
+
+    // Setup object moving event handler
+    // canvas.on('object:moving', function(e) {
+    //   const obj = e.target;
+    //   if (!obj) return;
+
+    //   // Update object coordinates
+    //   obj.setCoords();
+
+    //   // Get canvas dimensions
+    //   const canvasWidth = canvas.width ?? 0;
+    //   const canvasHeight = canvas.height ?? 0;
+
+    //   // // Prevent objects from leaving canvas
+    //   // if (obj.left < EDGE_DETECTION) obj.set({ left: 0 });
+    //   // if (obj.top < EDGE_DETECTION) obj.set({ top: 0 });
+
+    //   const objWidth = obj.getScaledWidth();
+    //   const objHeight = obj.getScaledHeight();
+
+    //   if ((objWidth + (obj.left ?? 0)) > (canvasWidth - EDGE_DETECTION)) {
+    //     obj.set({ left: canvasWidth - objWidth });
+    //   }
+    //   if ((objHeight + (obj.top ?? 0)) > (canvasHeight - EDGE_DETECTION)) {
+    //     obj.set({ top: canvasHeight - objHeight });
+    //   }
+
+    //   // Snap to other objects
+    //   // canvas.forEachObject((targetObj) => {
+    //   //   if (targetObj === obj) return;
+
+    //   //   const active = obj;
+    //   //   const target = targetObj;
+
+    //   //   // Ensure both objects have their coordinates set
+    //   //   active.setCoords();
+    //   //   target.setCoords();
+
+    //   //   // Skip if either object doesn't have coordinates
+    //   //   if (!active.oCoords || !target.oCoords) return;
+
+    //   //   // Snap to edges
+    //   //   // Right to Left
+    //   //   if (Math.abs(active.oCoords.tr.x - target.oCoords.tl.x) < EDGE_DETECTION) {
+    //   //     obj.set({ left: target.left - active.getScaledWidth() });
+    //   //   }
+    //   //   // Left to Right
+    //   //   if (Math.abs(active.oCoords.tl.x - target.oCoords.tr.x) < EDGE_DETECTION) {
+    //   //     obj.set({ left: target.left + target.getScaledWidth() });
+    //   //   }
+    //   //   // Bottom to Top
+    //   //   if (Math.abs(active.oCoords.br.y - target.oCoords.tr.y) < EDGE_DETECTION) {
+    //   //     obj.set({ top: target.top - active.getScaledHeight() });
+    //   //   }
+    //   //   // Top to Bottom
+    //   //   if (Math.abs(target.oCoords.br.y - active.oCoords.tr.y) < EDGE_DETECTION) {
+    //   //     obj.set({ top: target.top + target.getScaledHeight() });
+    //   //   }
+
+    //   //   // Snap alignments
+    //   //   // Vertical alignment
+    //   //   if (Math.abs((active.top ?? 0) - (target.top ?? 0)) < EDGE_DETECTION) {
+    //   //     obj.set({ top: target.top });
+    //   //   }
+    //   //   // Horizontal alignment
+    //   //   if (Math.abs((active.left ?? 0) - (target.left ?? 0)) < EDGE_DETECTION) {
+    //   //     obj.set({ left: target.left });
+    //   //   }
+
+    //   //   // // Highlight intersecting objects
+    //   //   // if (active.intersectsWithObject(target)) {
+    //   //   //   target.set({
+    //   //   //     strokeWidth: 2,
+    //   //   //     stroke: 'red'
+    //   //   //   });
+    //   //   // } else {
+    //   //   //   target.set({
+    //   //   //     strokeWidth: 0,
+    //   //   //     stroke: "transparent"
+    //   //   //   });
+    //   //   // }
+    //   // });
+
+    //   // Render changes
+    //   canvas.renderAll();
+    // });
+
     // Clean up on unmount
     return () => {
       fabricCanvasRef.current?.dispose();
+      canvas.off("object:moving");
     };
   }, [canvasOptions, setZoomLevel]);
 
@@ -171,29 +264,29 @@ const Canvas: React.FC = () => {
   const focusOnSelectedObject = () => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
-  
+
     const activeObject = canvas.getActiveObject();
     if (!activeObject) return;
-  
+
     // Get the center point of the object
     const objectCenter = activeObject.getCenterPoint();
     const zoom = 1; // Set zoom to 1
-  
+
     if (canvas.viewportTransform) {
       // Calculate center of viewport
       const vpCenter = {
         x: canvas.getWidth() / 2,
-        y: canvas.getHeight() / 2
+        y: canvas.getHeight() / 2,
       };
-  
+
       // Set zoom first
       canvas.setZoom(zoom);
       setZoomLevel(zoom);
-  
+
       // Calculate the difference between viewport center and object center
       canvas.viewportTransform[4] = vpCenter.x - objectCenter.x * zoom;
       canvas.viewportTransform[5] = vpCenter.y - objectCenter.y * zoom;
-  
+
       canvas.renderAll();
     }
   };
@@ -207,10 +300,8 @@ const Canvas: React.FC = () => {
       <>
         <Elements fabricCanvasRef={fabricCanvasRef} />
         <Suspense fallback={<Loader />}>
+          {" "}
           <DynamicObjectCounter fabricCanvasRef={fabricCanvasRef} />
-        </Suspense>
-
-        <Suspense fallback={<Loader />}>
           <SharedControls fabricCanvasRef={fabricCanvasRef} />
           <ObjSpecificControls fabricCanvasRef={fabricCanvasRef} />
         </Suspense>
@@ -227,7 +318,6 @@ const Canvas: React.FC = () => {
           <LucideZoomIn /> {zoomLevel.toFixed(2)}x
         </Button>
       </div>
-
       <Button
         variant={"destructive"}
         className="fixed top-2 right-2"
