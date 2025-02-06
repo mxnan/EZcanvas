@@ -1,19 +1,18 @@
-import Canvas from "./components/canvas/canvas";
-import { CanvasProvider } from "./context/canvas-context";
-import { ObjectProvider } from "./context/object-context";
-import { UserProvider } from "./context/user-context";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import AuthCallback from "./components/auth-callback";
+import Home from "./components/home";
 
 function App() {
   return (
-    <UserProvider>
-    <CanvasProvider>
-      <ObjectProvider>
-        <div className="relative bg-black text-white overflow-hidden h-screen w-full flex items-center justify-center">
-          <Canvas />
-        </div>
-      </ObjectProvider>
-    </CanvasProvider>
-    </UserProvider>
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />{" "}
+          {/* Route for the AuthCallback */}
+        </Routes>
+      </Router>
+    </>
   );
 }
 

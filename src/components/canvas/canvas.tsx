@@ -309,6 +309,7 @@ const Canvas: React.FC = () => {
 
   return (
     <>
+    
       <canvas
         ref={canvasRef}
         className="canvas-background z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
