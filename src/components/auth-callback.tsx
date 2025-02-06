@@ -18,6 +18,7 @@ const AuthCallback = () => {
         navigate('/'); // Redirect to your main page or dashboard
       } else {
         console.error('No session found');
+        navigate('/login'); // Redirect to login or an appropriate page
       }
     };
 

@@ -80,7 +80,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         provider: "google",
         options: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          redirectTo: (import.meta as any).env.VITE_REDIRECT_URL,
+          redirectTo: `${(import.meta as any).env.VITE_REDIRECT_URL}`,
         },
       });
       if (error) throw error;
