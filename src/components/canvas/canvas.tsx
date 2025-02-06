@@ -2,7 +2,13 @@ import React, { useEffect, useRef, lazy, Suspense } from "react";
 import { fabric } from "fabric";
 import { useCanvas } from "@/context/canvas-context";
 import { Button } from "../ui/button";
-import { Focus, HardDriveDownload, LucideZoomIn } from "lucide-react";
+import {
+  Focus,
+  HardDriveDownload,
+  LogIn,
+  LogOut,
+  LucideZoomIn,
+} from "lucide-react";
 import Elements from "./elements/elements";
 import Loader from "../ui/loader";
 import {
@@ -11,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "@/context/user-context";
 
 // Dynamically import ObjectCounter
 const DynamicObjectCounter = lazy(() => import("./elements/object-counter"));
@@ -24,6 +31,7 @@ const ObjSpecificControls = lazy(
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { user, signInWithGoogle, signOut } = useAuth();
   const { canvasOptions, setCanvasOptions, zoomLevel, setZoomLevel } =
     useCanvas();
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
@@ -51,6 +59,7 @@ const Canvas: React.FC = () => {
       width: canvasOptions.width,
       height: canvasOptions.height,
       preserveObjectStacking: true,
+
       // selection: false, // Disable group selection
     });
 
@@ -335,26 +344,50 @@ const Canvas: React.FC = () => {
           <LucideZoomIn /> {zoomLevel.toFixed(2)}x
         </Button>
       </div>
-      <div className="fixed top-2 right-2">
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={"destructive"}
-              // className="fixed top-2 right-2"
-              size={"sm"}
-              onClick={downloadCanvasAsPNG} // Set up the download function
-            >
-              <HardDriveDownload />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" sideOffset={10}>
-            <p className="text-xs font-bold">Download</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="fixed flex gap-2 items-center top-2 right-2">
+        {user && user.avatar_url && (
+          <img
+            src={user.avatar_url}
+            alt="User Avatar"
+            className="w-8 h-8 rounded-xl"
+          />
+        )}
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={user ? signOut : signInWithGoogle}
+              >
+                {user ? <LogOut /> : <LogIn />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={10}>
+              <p className="text-xs font-bold">
+                {user ? "Sign Out" : "Sign In"}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={"destructive"}
+                // className="fixed top-2 right-2"
+                size={"sm"}
+                onClick={downloadCanvasAsPNG} // Set up the download function
+              >
+                <HardDriveDownload />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={10}>
+              <p className="text-xs font-bold">Download</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
- 
     </>
   );
 };
