@@ -5,6 +5,13 @@ import { Button } from "../ui/button";
 import { Focus, HardDriveDownload, LucideZoomIn } from "lucide-react";
 import Elements from "./elements/elements";
 import Loader from "../ui/loader";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 // Dynamically import ObjectCounter
 const DynamicObjectCounter = lazy(() => import("./elements/object-counter"));
 const SharedControls = lazy(() => import("./controls/shared-controls"));
@@ -307,25 +314,47 @@ const Canvas: React.FC = () => {
         </Suspense>
       </>
       <div className="fixed bottom-2 right-2 flex items-center gap-2">
-        <Button
-          variant={"outline"}
-          size={"icon"}
-          onClick={focusOnSelectedObject}
-        >
-          <Focus />
-        </Button>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={"outline"}
+                size={"icon"}
+                onClick={focusOnSelectedObject}
+              >
+                <Focus />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={10}>
+              <p className="text-xs font-bold">Focus</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <Button variant={"outline"}>
           <LucideZoomIn /> {zoomLevel.toFixed(2)}x
         </Button>
       </div>
-      <Button
-        variant={"destructive"}
-        className="fixed top-2 right-2"
-        size={"sm"}
-        onClick={downloadCanvasAsPNG} // Set up the download function
-      >
-        <HardDriveDownload />
-      </Button>
+      <div className="fixed top-2 right-2">
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={"destructive"}
+              // className="fixed top-2 right-2"
+              size={"sm"}
+              onClick={downloadCanvasAsPNG} // Set up the download function
+            >
+              <HardDriveDownload />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={10}>
+            <p className="text-xs font-bold">Download</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      </div>
+ 
     </>
   );
 };
