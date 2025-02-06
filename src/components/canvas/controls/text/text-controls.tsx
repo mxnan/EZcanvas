@@ -23,6 +23,7 @@ import {
   AlignRight,
   BookType,
   Check,
+  CornerDownLeft,
   Italic,
   MoveHorizontal,
   MoveVertical,
@@ -43,6 +44,8 @@ const TextControls: React.FC<TextControlsProps> = ({
   const [selectedFont, setSelectedFont] = React.useState<string>(""); // State to track selected font
   const [skewX, setSkewX] = React.useState(0); // State for skewX
   const [skewY, setSkewY] = React.useState(0); // State for skewY
+  const [borderColor, setBorderColor] = React.useState<string>("#000000");
+  const [borderThickness, setBorderThickness] = React.useState<number>(0.5);
 
   // Updated font families to use the specified fonts
   const fontFamilies = [
@@ -61,6 +64,22 @@ const TextControls: React.FC<TextControlsProps> = ({
   if (!activeObject || !(activeObject instanceof fabric.IText)) {
     return null; // Return null if no active text object
   }
+
+  const handleBorderColorChange = (color: string) => {
+    setBorderColor(color);
+    if (activeObject) {
+      activeObject.set({ stroke: color });
+      fabricCanvasRef.current?.renderAll();
+    }
+  };
+
+  const handleBorderThicknessChange = (value: number) => {
+    setBorderThickness(value);
+    if (activeObject) {
+      activeObject.set({ strokeWidth: value });
+      fabricCanvasRef.current?.renderAll();
+    }
+  };
 
   const handleColorChange = (color: string) => {
     activeObject.set({ fill: color });
@@ -193,8 +212,8 @@ const TextControls: React.FC<TextControlsProps> = ({
               <MoveHorizontal className="w-4 h-4" />
               <input
                 type="range"
-                min="-45"
-                max="45"
+                min="-60"
+                max="60"
                 value={skewX}
                 className="flex-1 h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer"
                 onChange={(e) =>
@@ -207,8 +226,8 @@ const TextControls: React.FC<TextControlsProps> = ({
               <MoveVertical className="w-4 h-4" />
               <input
                 type="range"
-                min="-45"
-                max="45"
+                min="-60"
+                max="60"
                 value={skewY}
                 className="flex-1 h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer"
                 onChange={(e) =>
@@ -217,6 +236,41 @@ const TextControls: React.FC<TextControlsProps> = ({
               />
               <span className="text-xs w-8 text-right">{skewY}°</span>
             </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+      {/* Combined Popover for Border Color and Thickness */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            // style={{ backgroundColor: borderColor }}
+          >
+            <CornerDownLeft className="w-4 h-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          side="left"
+          sideOffset={10}
+          className="p-2 w-full flex items-center gap-2"
+        >
+          <ColorPicker
+            currentColor={borderColor}
+            onChange={handleBorderColorChange}
+          />
+          <div className="w-full">
+            <input
+              type="range"
+              min="0"
+              max="4"
+              step="0.4"
+              value={borderThickness}
+              onChange={(e) =>
+                handleBorderThicknessChange(parseFloat(e.target.value))
+              }
+              className="h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer"
+            />
           </div>
         </PopoverContent>
       </Popover>

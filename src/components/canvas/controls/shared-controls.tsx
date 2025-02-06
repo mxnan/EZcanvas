@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useObjects } from "@/context/object-context";
 import { fabric } from "fabric";
 import {
@@ -78,29 +84,31 @@ const SharedControls: React.FC<SharedControlsProps> = ({ fabricCanvasRef }) => {
         fabricCanvasRef.current?.add(cloned);
         fabricCanvasRef.current?.setActiveObject(cloned);
         fabricCanvasRef.current?.renderAll();
-     // Determine the type of the active object and map it to a generic type
-     let objectType: string;
+        // Determine the type of the active object and map it to a generic type
+        let objectType: string;
 
-     if (activeObject instanceof fabric.IText) {
-       objectType = "text"; // For text objects
-     } else if (activeObject instanceof fabric.Image) {
-       objectType = "image"; // For image objects
-     } else if (activeObject instanceof fabric.Path || 
-                activeObject instanceof fabric.Rect || 
-                activeObject instanceof fabric.Circle || 
-                activeObject instanceof fabric.Ellipse || 
-                activeObject instanceof fabric.Triangle) {
-       objectType = "shape"; // For all shape types
-     } else {
-       objectType = "unknown"; // Fallback for any other types
-     }
-     // Create ObjectType with the new cloned object's ID
-     const objectTypeData = {
-       id: cloned.id,
-       type: objectType, // Set the standardized type
-       properties: cloned,
-     };
-     addObject(objectTypeData); // Add the new object to the context
+        if (activeObject instanceof fabric.IText) {
+          objectType = "text"; // For text objects
+        } else if (activeObject instanceof fabric.Image) {
+          objectType = "image"; // For image objects
+        } else if (
+          activeObject instanceof fabric.Path ||
+          activeObject instanceof fabric.Rect ||
+          activeObject instanceof fabric.Circle ||
+          activeObject instanceof fabric.Ellipse ||
+          activeObject instanceof fabric.Triangle
+        ) {
+          objectType = "shape"; // For all shape types
+        } else {
+          objectType = "unknown"; // Fallback for any other types
+        }
+        // Create ObjectType with the new cloned object's ID
+        const objectTypeData = {
+          id: cloned.id,
+          type: objectType, // Set the standardized type
+          properties: cloned,
+        };
+        addObject(objectTypeData); // Add the new object to the context
       });
     }
   };
@@ -133,42 +141,104 @@ const SharedControls: React.FC<SharedControlsProps> = ({ fabricCanvasRef }) => {
     <AnimatePresence>
       {activeObjectId && (
         <motion.div
-          className="fixed bottom-2 left-[42%]   p-2 bg-neutral-800 rounded-xl shadow flex items-center gap-2"
+          className="fixed bottom-2 left-[42%] p-2 bg-neutral-800 rounded-xl shadow flex items-center gap-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
         >
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleDelete}
-            className="hover:bg-red-500/60"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={handleDuplicate}>
-            <Copy className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => handleMoveLayer("up")}
-          >
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => handleMoveLayer("down")}
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={() => handleFlip("x")}>
-            <FlipHorizontal className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={() => handleFlip("y")}>
-            <FlipVertical className="h-4 w-4" />
-          </Button>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleDelete}
+                  className="hover:bg-red-500/60"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={10}>
+                <p className="text-xs font-bold">Delete</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={handleDuplicate}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={10}>
+                <p className="text-xs font-bold">Duplicate</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleMoveLayer("up")}
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={10}>
+                <p className="text-xs font-bold">Layer up</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleMoveLayer("down")}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={10}>
+                <p className="text-xs font-bold">Layer down</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleFlip("x")}
+                >
+                  <FlipHorizontal className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={10}>
+                <p className="text-xs font-bold">Flip X</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleFlip("y")}
+                >
+                  <FlipVertical className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" sideOffset={10}>
+                <p className="text-xs font-bold">Flip Y</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </motion.div>
       )}
     </AnimatePresence>
