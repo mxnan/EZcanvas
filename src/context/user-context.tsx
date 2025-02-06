@@ -13,7 +13,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase.auth.getSession(); // Await the result
 
       if (error) {
-        console.error('Error fetching session:', error);
+        console.error("Error fetching session:", error);
         setLoading(false);
         return;
       }
@@ -36,7 +36,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     getInitialSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         getUserProfile(session.user.id);
       } else {
@@ -75,14 +77,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          redirectTo: (import.meta as any).env.VITE_REDIRECT_URL,
         },
       });
       if (error) throw error;
     } catch (error) {
-      console.error('Error signing in with Google:', error);
+      console.error("Error signing in with Google:", error);
     }
   };
   const signOut = async () => {
