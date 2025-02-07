@@ -76,11 +76,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithGoogle = async () => {
     try {
+      const redirectTo =
+        import.meta.env.VITE_DEV_MODE === "dev"
+          ? import.meta.env.VITE_DEV_REDIRECT_URL // For development
+          : import.meta.env.VITE_PROD_REDIRECT_URL; // For production
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          redirectTo: `${(import.meta as any).env.VITE_REDIRECT_URL}`,
+          redirectTo: redirectTo,
         },
       });
       if (error) throw error;
