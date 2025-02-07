@@ -97,11 +97,27 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   };
   const signOut = async () => {
     try {
+      // First check if we have a valid session
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (!sessionData.session) {
+        // If no session exists, just clear the local user state
+        setUser(null);
+        return;
+      }
+  
+      // If we have a session, proceed with sign out
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.error("Error during sign out:", error);
+      }
+      
+      // Clear the user state regardless of the signOut result
       setUser(null);
     } catch (error) {
       console.error("Error signing out:", error);
+      // Still clear the user state even if there's an error
+      setUser(null);
     }
   };
 
