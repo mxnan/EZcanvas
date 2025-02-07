@@ -8,29 +8,19 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuth = async () => {
       try {
-        // Get the URL hash
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-
-        if (!accessToken) {
-          console.error('No access token found');
-          navigate('/');
-          return;
-        }
-
-        // Set the session
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: hashParams.get('refresh_token') || '',
-        });
+        const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
-          console.error('Error setting session:', error);
+          throw error;
+        }
+
+        if (!session) {
+          console.error('No session found');
           navigate('/');
           return;
         }
 
-        // Redirect to home page after successful authentication
+        // Successfully authenticated
         navigate('/');
       } catch (error) {
         console.error('Error in auth callback:', error);

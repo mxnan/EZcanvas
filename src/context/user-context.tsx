@@ -10,37 +10,37 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const getInitialSession = async () => {
-      const { data, error } = await supabase.auth.getSession(); // Await the result
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error fetching session:", error);
+          setLoading(false);
+          return;
+        }
 
-      if (error) {
-        console.error("Error fetching session:", error);
-        setLoading(false);
-        return;
-      }
-
-      const session = data.session; // Access the session from the resolved data
-
-      if (session?.user) {
-        const userData: UserType = {
-          id: session.user.id,
-          email: session.user.email || "",
-          isPremium: false, // Default value
-          avatar_url: session.user.user_metadata?.avatar_url || "", // Default to empty string
-        };
-        setUser(userData);
-      } else {
+        if (data?.session?.user) {
+          await getUserProfile(data.session.user.id);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error in getInitialSession:", error);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getInitialSession();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event);
+      
       if (session?.user) {
-        getUserProfile(session.user.id);
+        await getUserProfile(session.user.id);
       } else {
         setUser(null);
       }
@@ -53,40 +53,47 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const getUserProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    if (error) {
-      console.error("Error fetching user profile:", error);
-      return;
-    }
+      if (error) {
+        console.error("Error fetching user profile:", error);
+        return;
+      }
 
-    if (data) {
-      setUser({
-        id: data.id,
-        email: data.email,
-        isPremium: data.is_premium,
-        avatar_url: data.avatar_url || "",
-      });
+      if (data) {
+        setUser({
+          id: data.id,
+          email: data.email,
+          isPremium: data.is_premium,
+          avatar_url: data.avatar_url || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error in getUserProfile:", error);
     }
   };
 
   const signInWithGoogle = async () => {
     try {
-      const isDevMode = import.meta.env.VITE_DEV_MODE === "dev";
-      const redirectUrl = isDevMode
+      const redirectUrl = import.meta.env.VITE_DEV_MODE === "dev"
         ? `${import.meta.env.VITE_DEV_URL}/auth/callback`
         : `${import.meta.env.VITE_PROD_URL}/auth/callback`;
 
-      console.log("Redirecting to:", redirectUrl); // For debugging
+      console.log("Redirecting to:", redirectUrl);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
 
@@ -95,29 +102,21 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error signing in with Google:", error);
     }
   };
+
   const signOut = async () => {
     try {
-      // First check if we have a valid session
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      if (!sessionData.session) {
-        // If no session exists, just clear the local user state
-        setUser(null);
-        return;
-      }
-  
-      // If we have a session, proceed with sign out
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) {
         console.error("Error during sign out:", error);
       }
-      
-      // Clear the user state regardless of the signOut result
+      // Clear the user state regardless of the result
       setUser(null);
+      // Force reload the page to clear any cached state
+      window.location.reload();
     } catch (error) {
       console.error("Error signing out:", error);
-      // Still clear the user state even if there's an error
       setUser(null);
+      window.location.reload();
     }
   };
 
