@@ -16,15 +16,13 @@ const AuthCallback = () => {
         // Extract the tokens
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
-        const providerToken = hashParams.get('provider_token');
-        // const expiresIn = hashParams.get('expires_in');
 
         if (!accessToken) {
           throw new Error('No access token found');
         }
 
         // Set the session with Supabase
-        const { data, error } = await supabase.auth.setSession({
+        const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken || '',
         });
@@ -33,25 +31,16 @@ const AuthCallback = () => {
           throw error;
         }
 
-        if (data.session) {
-          // Store provider token if needed
-          if (providerToken) {
-            localStorage.setItem('provider_token', providerToken);
-          }
-
-          console.log('Authentication successful');
-          navigate('/', { replace: true }); // Use replace to prevent back navigation
-        } else {
-          throw new Error('Failed to establish session');
-        }
+        // Successfully authenticated
+        console.log('Authentication successful');
+        navigate('/', { replace: true }); // Redirect to home
 
       } catch (error) {
         console.error('Error in auth callback:', error);
-        navigate('/', { replace: true });
+        navigate('/', { replace: true }); // Redirect to home on error
       }
     };
 
-    // Execute the auth handling
     handleAuth();
   }, [navigate]);
 

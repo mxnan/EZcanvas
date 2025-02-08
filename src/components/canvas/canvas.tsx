@@ -5,8 +5,8 @@ import { Button } from "../ui/button";
 import {
   Focus,
   HardDriveDownload,
-  LogIn,
-  LogOut,
+  // LogIn,
+  // LogOut,
   LucideZoomIn,
 } from "lucide-react";
 import Elements from "./elements/elements";
@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAuth } from "@/context/user-context";
+// import { useAuth } from "@/context/user-context";
 
 // Dynamically import ObjectCounter
 const DynamicObjectCounter = lazy(() => import("./elements/object-counter"));
@@ -31,7 +31,7 @@ const ObjSpecificControls = lazy(
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { user, signInWithGoogle, signOut } = useAuth();
+  // const { user, signInWithGoogle, signOut } = useAuth();
   const { canvasOptions, setCanvasOptions, zoomLevel, setZoomLevel } =
     useCanvas();
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
@@ -346,14 +346,14 @@ const Canvas: React.FC = () => {
         </Button>
       </div>
       <div className="fixed flex gap-2 items-center top-2 right-2">
-        {user && user.avatar_url && (
+        {/* {user && user.avatar_url && (
           <img
             src={user.avatar_url}
             alt="User Avatar"
             className="w-8 h-8 rounded-xl"
           />
-        )}
-        <TooltipProvider delayDuration={0}>
+        )} */}
+        {/* <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -370,7 +370,7 @@ const Canvas: React.FC = () => {
               </p>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
+        </TooltipProvider> */}
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>
