@@ -346,31 +346,6 @@ const Canvas: React.FC = () => {
         </Button>
       </div>
       <div className="fixed flex gap-2 items-center top-2 right-2">
-        {/* {user && user.avatar_url && (
-          <img
-            src={user.avatar_url}
-            alt="User Avatar"
-            className="w-8 h-8 rounded-xl"
-          />
-        )} */}
-        {/* <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={user ? signOut : signInWithGoogle}
-              >
-                {user ? <LogOut /> : <LogIn />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" sideOffset={10}>
-              <p className="text-xs font-bold">
-                {user ? "Sign Out" : "Sign In"}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider> */}
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>
