@@ -59,6 +59,27 @@ const TextControls: React.FC<TextControlsProps> = ({
     { label: "Russo One", value: "Russo One" },
     { label: "Staatliches", value: "Staatliches" },
     { label: "Wallpoet", value: "Wallpoet" },
+    // ... existing fonts ...
+    { label: "Bungee Shade", value: "Bungee Shade" }, // 3D shadow effect
+    { label: "Creepster", value: "Creepster" }, // Horror style
+    { label: "Faster One", value: "Faster One" }, // Racing style
+    { label: "Monoton", value: "Monoton" }, // Retro neon
+    { label: "Press Start 2P", value: "Press Start 2P" }, // 8-bit pixel
+    { label: "Rubik Glitch", value: "Rubik Glitch" }, // Glitch effect
+    { label: "Rubik Vinyl", value: "Rubik Vinyl" }, // Record label style
+    { label: "Silkscreen", value: "Silkscreen" }, // Clean pixel
+    { label: "VT323", value: "VT323" }, // Terminal style
+    { label: "Nabla", value: "Nabla" }, // 3D isometric
+    { label: "Tilt Prism", value: "Tilt Prism" }, // Prismatic effect
+    { label: "Pixelify Sans", value: "Pixelify Sans" }, // Modern pixel
+    { label: "Bungee Spice", value: "Bungee Spice" }, // Spicy gradient
+    { label: "Butcherman", value: "Butcherman" }, // Horror carved
+    { label: "Nosifer", value: "Nosifer" }, // Gothic metal
+    { label: "Rubik Burned", value: "Rubik Burned" }, // Burned effect
+    { label: "Rubik Maps", value: "Rubik Maps" }, // Map style
+    { label: "Stick", value: "Stick" }, // Stick figure
+    { label: "Tourney", value: "Tourney" }, // Sports display
+    { label: "Zen Tokyo Zoo", value: "Zen Tokyo Zoo" }, // Japanese display
   ];
 
   if (!activeObject || !(activeObject instanceof fabric.IText)) {
