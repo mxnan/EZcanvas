@@ -5,8 +5,6 @@ import { Button } from "../ui/button";
 import {
   Focus,
   HardDriveDownload,
-  // LogIn,
-  // LogOut,
   LucideZoomIn,
 } from "lucide-react";
 import Elements from "./elements/elements";
@@ -17,7 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-// import { useAuth } from "@/context/user-context";
+
 
 // Dynamically import ObjectCounter
 const DynamicObjectCounter = lazy(() => import("./elements/object-counter"));
@@ -26,8 +24,6 @@ const ObjSpecificControls = lazy(
   () => import("./controls/obj-specific-controls")
 );
 
-// Constants for snapping
-// const EDGE_DETECTION = 5; // pixels to snap
 
 const Canvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -89,92 +85,6 @@ const Canvas: React.FC = () => {
 
     const canvas = fabricCanvasRef.current;
 
-    // Setup object moving event handler
-    // canvas.on('object:moving', function(e) {
-    //   const obj = e.target;
-    //   if (!obj) return;
-
-    //   // Update object coordinates
-    //   obj.setCoords();
-
-    //   // Get canvas dimensions
-    //   const canvasWidth = canvas.width ?? 0;
-    //   const canvasHeight = canvas.height ?? 0;
-
-    //   // // Prevent objects from leaving canvas
-    //   // if (obj.left < EDGE_DETECTION) obj.set({ left: 0 });
-    //   // if (obj.top < EDGE_DETECTION) obj.set({ top: 0 });
-
-    //   const objWidth = obj.getScaledWidth();
-    //   const objHeight = obj.getScaledHeight();
-
-    //   if ((objWidth + (obj.left ?? 0)) > (canvasWidth - EDGE_DETECTION)) {
-    //     obj.set({ left: canvasWidth - objWidth });
-    //   }
-    //   if ((objHeight + (obj.top ?? 0)) > (canvasHeight - EDGE_DETECTION)) {
-    //     obj.set({ top: canvasHeight - objHeight });
-    //   }
-
-    //   // Snap to other objects
-    //   // canvas.forEachObject((targetObj) => {
-    //   //   if (targetObj === obj) return;
-
-    //   //   const active = obj;
-    //   //   const target = targetObj;
-
-    //   //   // Ensure both objects have their coordinates set
-    //   //   active.setCoords();
-    //   //   target.setCoords();
-
-    //   //   // Skip if either object doesn't have coordinates
-    //   //   if (!active.oCoords || !target.oCoords) return;
-
-    //   //   // Snap to edges
-    //   //   // Right to Left
-    //   //   if (Math.abs(active.oCoords.tr.x - target.oCoords.tl.x) < EDGE_DETECTION) {
-    //   //     obj.set({ left: target.left - active.getScaledWidth() });
-    //   //   }
-    //   //   // Left to Right
-    //   //   if (Math.abs(active.oCoords.tl.x - target.oCoords.tr.x) < EDGE_DETECTION) {
-    //   //     obj.set({ left: target.left + target.getScaledWidth() });
-    //   //   }
-    //   //   // Bottom to Top
-    //   //   if (Math.abs(active.oCoords.br.y - target.oCoords.tr.y) < EDGE_DETECTION) {
-    //   //     obj.set({ top: target.top - active.getScaledHeight() });
-    //   //   }
-    //   //   // Top to Bottom
-    //   //   if (Math.abs(target.oCoords.br.y - active.oCoords.tr.y) < EDGE_DETECTION) {
-    //   //     obj.set({ top: target.top + target.getScaledHeight() });
-    //   //   }
-
-    //   //   // Snap alignments
-    //   //   // Vertical alignment
-    //   //   if (Math.abs((active.top ?? 0) - (target.top ?? 0)) < EDGE_DETECTION) {
-    //   //     obj.set({ top: target.top });
-    //   //   }
-    //   //   // Horizontal alignment
-    //   //   if (Math.abs((active.left ?? 0) - (target.left ?? 0)) < EDGE_DETECTION) {
-    //   //     obj.set({ left: target.left });
-    //   //   }
-
-    //   //   // // Highlight intersecting objects
-    //   //   // if (active.intersectsWithObject(target)) {
-    //   //   //   target.set({
-    //   //   //     strokeWidth: 2,
-    //   //   //     stroke: 'red'
-    //   //   //   });
-    //   //   // } else {
-    //   //   //   target.set({
-    //   //   //     strokeWidth: 0,
-    //   //   //     stroke: "transparent"
-    //   //   //   });
-    //   //   // }
-    //   // });
-
-    //   // Render changes
-    //   canvas.renderAll();
-    // });
-
     // Clean up on unmount
     return () => {
       fabricCanvasRef.current?.dispose();
@@ -201,66 +111,6 @@ const Canvas: React.FC = () => {
       window.removeEventListener("resize", updateCanvasSize); // Clean up listener
     };
   }, [updateCanvasSize]);
-
-  // // uef for drag and drop
-  // useEffect(() => {
-  //   const canvas = fabricCanvasRef.current?.getElement().parentElement;
-  //   if (!canvas) return;
-
-  //   const handleDragOver = (e: DragEvent) => {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //   };
-
-  //   const handleDrop = (e: DragEvent) => {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-
-  //     const files = e.dataTransfer?.files;
-  //     if (files && files[0] && fabricCanvasRef.current) {
-  //       const file = files[0];
-  //       if (!file.type.startsWith('image/')) return;
-
-  //       const reader = new FileReader();
-  //       reader.onload = (event) => {
-  //         fabric.Image.fromURL(event.target?.result as string, (img) => {
-  //           const fabricImage = img as unknown as CustomFabricObject;
-  //           fabricImage.id = generateRandomId();
-
-  //           // Position the image where it was dropped
-  //           const canvasOffset = canvas.getBoundingClientRect();
-  //           const zoom = fabricCanvasRef.current?.getZoom() || 1;
-  //           fabricImage.left = (e.clientX - canvasOffset.left) / zoom;
-  //           fabricImage.top = (e.clientY - canvasOffset.top) / zoom;
-
-  //           fabricImage.scaleToWidth(200); // Set default width
-
-  //           fabricCanvasRef.current?.add(fabricImage);
-  //           fabricCanvasRef.current?.setActiveObject(fabricImage);
-  //           fabricCanvasRef.current?.renderAll();
-
-  //           // Add to context
-  //           addObject({
-  //             id: fabricImage.id,
-  //             type: "image",
-  //             properties: fabricImage,
-  //           });
-  //         });
-  //       };
-  //       reader.readAsDataURL(file);
-  //     }
-  //   };
-
-  //   canvas.addEventListener('dragover', handleDragOver);
-  //   canvas.addEventListener('drop', handleDrop);
-
-  //   return () => {
-  //     canvas.removeEventListener('dragover', handleDragOver);
-  //     canvas.removeEventListener('drop', handleDrop);
-  //   };
-  // }, [addObject]);
-
-  // base canvas code /////////////////////////
 
   // Function to download canvas as PNG
   const downloadCanvasAsPNG = () => {
@@ -309,7 +159,6 @@ const Canvas: React.FC = () => {
 
   return (
     <>
-    
       <canvas
         ref={canvasRef}
         className="canvas-background z-0 fixed inset-0 rounded-lg shadow-xl w-full h-full"
