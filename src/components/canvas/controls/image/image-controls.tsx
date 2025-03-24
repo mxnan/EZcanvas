@@ -44,16 +44,16 @@ const ImageControls: React.FC<ImageControlsProps> = ({
             newFilters.invert = true;
           }
           else if (filter instanceof fabric.Image.filters.Brightness) {
-            newFilters.brightness = filter.brightness;
+            newFilters.brightness = filter.brightness; // Correctly access brightness
           }
           else if (filter instanceof fabric.Image.filters.Contrast) {
-            newFilters.contrast = filter.contrast;
+            newFilters.contrast = filter.contrast; // Correctly access contrast
           }
           else if (filter instanceof fabric.Image.filters.Saturation) {
-            newFilters.saturation = filter.saturation;
+            newFilters.saturation = filter.saturation; // Correctly access saturation
           }
           else if (filter instanceof fabric.Image.filters.Blur) {
-            newFilters.blur = filter.blur;
+            newFilters.blur = filter.blur; // Correctly access blur
           }
         });
       }

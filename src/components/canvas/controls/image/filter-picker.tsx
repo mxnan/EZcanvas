@@ -26,6 +26,7 @@ interface FilterPickerProps {
 const FilterPicker: React.FC<FilterPickerProps> = ({ onApplyFilter, activeFilters }) => {
   const [sliderValues, setSliderValues] = useState<Record<string, number>>(
     Object.entries(activeFilters)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .filter(([_, value]) => typeof value === 'number')
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value as number }), {})
   );
@@ -38,7 +39,7 @@ const FilterPicker: React.FC<FilterPickerProps> = ({ onApplyFilter, activeFilter
     { name: "Brightness", value: "brightness", hasSlider: true, defaultValue: 0, min: -1, max: 1, step: 0.05 },
     { name: "Contrast", value: "contrast", hasSlider: true, defaultValue: 0, min: -1, max: 1, step: 0.05 },
     { name: "Saturation", value: "saturation", hasSlider: true, defaultValue: 0, min: -1, max: 1, step: 0.05 },
-    { name: "Blur", value: "blur", hasSlider: true, defaultValue: 0, min: 0, max: 1, step: 0.05 },
+    { name: "Blur", value: "blur", hasSlider: true, defaultValue: 0, min: 0, max: 1, step: 0.01 },
   ];
 
   const handleSliderChange = (filter: string, value: number) => {
